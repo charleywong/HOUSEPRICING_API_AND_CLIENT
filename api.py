@@ -1,13 +1,12 @@
-from flask import Flask
+from flask import Blueprint
 from flask_restplus import Resource, Api
 
-app = Flask(__name__)
-api = Api(app)
+# API AND SWAGGER INIT
+blueprint = Blueprint('api', __name__)
+api = Api(blueprint, title='Our Api')
 
-@api.route('/hello')
+# API ROUTES HERE?
+@api.route('/test')
 class HelloWorld(Resource):
     def get(self):
-        return {'hello': 'world'}
-
-if __name__ == '__main__':
-    app.run(debug=True)
+        return { 'some': 'shit right here' }, 200
