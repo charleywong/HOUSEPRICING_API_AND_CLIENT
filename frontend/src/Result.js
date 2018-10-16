@@ -26,6 +26,7 @@ class Result extends React.Component {
   constructor(props) {
     super(props);
     this.state = this.props.location.state;
+    console.log(localStorage.getItem('test'))
   }
 
   /*** CHARTS AND DISPLAY DATA STUFF ***/

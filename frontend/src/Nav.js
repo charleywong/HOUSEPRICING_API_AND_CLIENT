@@ -7,14 +7,22 @@ import logo from './img/logo.svg';
 
 import axios from 'axios'
 
+var user = '';
+
 
 class LoginModal extends React.Component {
   constructor(props) {
     super (props);
-    this.state = {email:'', password:''};
+    this.state = {modalOpen: false, email:'', password:''};
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.handleOpen = this.handleOpen.bind(this);
+
+    localStorage.setItem('test', 'hello');
+
   }
+  // close the modal
+  handleOpen = () => this.setState({ modalOpen: true })
 
   handleChange(event) {
     const name = event.target.name;
@@ -40,15 +48,23 @@ class LoginModal extends React.Component {
     const config = {
       headers: {'Access-Control-Allow-Origin': '*'}
     };
-    axios.post(url, payload)
-    .then(response => console.log(response.data));
 
-    // close the modal
+    /***
+    POST REQ, set session in local storage as token-username
+    ***/
+    axios.post(url, payload)
+    .then(response => localStorage.setItem('session', response.data));
+    localStorage.setItem('test', '1');
+    this.setState({modalOpen: false});
+
   }
 
   render() {
     return(
-      <Modal size='tiny' trigger={<div class='item'>Login</div>} closeIcon>
+      <Modal size='tiny'
+        trigger={<div class='item' onClick={this.handleOpen}>Login</div>}
+        open={this.state.modalOpen}
+        onClose={this.handleClose}>
       <Modal.Header>Login</Modal.Header>
       <Modal.Content>
         <Modal.Description>
@@ -72,7 +88,7 @@ class LoginModal extends React.Component {
                 value={this.state.password}
               />
             </Form.Field>
-            <Button type='submit' >Login</Button>
+            <Button type='submit' onClick={this.handleClose}>Login</Button>
           </Form><br />
           </div>
         </Modal.Description>
@@ -101,7 +117,7 @@ class LoginModal extends React.Component {
 //           <label>Password</label>
 //           <input
 //             type='password'
-        
+
 //           />
 //         </Form.Field>
 //         <Button type='submit'>Login</Button>
