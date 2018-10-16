@@ -1,14 +1,11 @@
 import React, { Component } from 'react';
 import { HashRouter, Route, Link, Redirect } from 'react-router-dom';
 
-import { Form, Modal, Button } from 'semantic-ui-react';
+import { Form, Modal, Button, Rail, Icon } from 'semantic-ui-react';
 
 import logo from './img/logo.svg';
 
 import axios from 'axios'
-
-var user = '';
-
 
 class LoginModal extends React.Component {
   constructor(props) {
@@ -17,12 +14,14 @@ class LoginModal extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleOpen = this.handleOpen.bind(this);
+    this.handleClose = this.handleClose.bind(this);
 
     localStorage.setItem('test', 'hello');
 
   }
   // close the modal
   handleOpen = () => this.setState({ modalOpen: true })
+  handleClose = () => this.setState({ modalOpen: false })
 
   handleChange(event) {
     const name = event.target.name;
@@ -45,9 +44,6 @@ class LoginModal extends React.Component {
       name:this.state.email,
       password:this.state.password
     };
-    const config = {
-      headers: {'Access-Control-Allow-Origin': '*'}
-    };
 
     /***
     POST REQ, set session in local storage as token-username
@@ -57,7 +53,6 @@ class LoginModal extends React.Component {
       localStorage.setItem('session', response.data['message']);
     })
     this.setState({modalOpen: false});
-    console.log(localStorage.getItem('session'));
   }
 
   render() {
@@ -89,8 +84,10 @@ class LoginModal extends React.Component {
                 value={this.state.password}
               />
             </Form.Field>
-            <Button type='submit' onClick={this.handleClose}>Login</Button>
+            <Button type='submit' onClick={this.handleSubmit}>Login</Button>
+
           </Form><br />
+          <Rail attached position='right'><Icon onClick={this.handleClose} style={{padding:10}} fitted name='close' color='red' /></Rail>
           </div>
         </Modal.Description>
       </Modal.Content>
@@ -186,8 +183,17 @@ class RegistrationModal extends React.Component {
       );
   }
 }
+
+
 /*** navbar ***/
-const Nav = props => (
+
+class Nav extends React.Component {
+  handleLogout = () => {
+    localStorage.removeItem('session', null)
+    console.log('logged out' + localStorage.getItem('session'))
+  }
+  render() {
+    return(
       <div class='inverted ui menu borderless fixed'>
         <div id='top'></div>
         <div class='yellow ui container'>
@@ -198,9 +204,11 @@ const Nav = props => (
           <div class='right menu'>
             <LoginModal />
             <RegistrationModal/>
+            <div class='item' onClick={this.handleLogout}>Logout</div>
           </div>
         </div>
       </div>
-);
+)}
+}
 
 export default Nav;
