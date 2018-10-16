@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { HashRouter, Route, Link } from 'react-router-dom';
+import { HashRouter, Route, Link, Redirect } from 'react-router-dom';
 
 import { Form, Modal, Button } from 'semantic-ui-react';
 
@@ -53,10 +53,13 @@ class LoginModal extends React.Component {
     POST REQ, set session in local storage as token-username
     ***/
     axios.post(url, payload)
-    .then(response => localStorage.setItem('session', response.data));
-    localStorage.setItem('test', '1');
+    .then(response => {
+      localStorage.setItem('session', response.data['message']);
+      return <Redirect to='/api' />;
+    })
+    //localStorage.setItem('session', response.data
     this.setState({modalOpen: false});
-
+    console.log(localStorage.getItem('session'));
   }
 
   render() {
