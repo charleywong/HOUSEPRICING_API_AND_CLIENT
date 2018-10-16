@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Button, Form, TextArea, Input, Radio, Select, Divider } from 'semantic-ui-react';
 import { Redirect } from 'react-router';
 import { Link } from 'react-router-dom';
-import axios from 'axios'
+import axios from 'axios';
 
 import './ActualApp.css';
 import Result from './Result.js';
@@ -47,6 +47,7 @@ class ApiForm extends React.Component {
     //   { address: data.get('address'),
     //   city: data.get('city')
     // });
+    console.log(this.state);
     // note that because this request is async, when handling response, we should try to use callback functions such as console.log
     // rather than functions like alert() which is also async
     // there is also a bug with this where if your resulting data is too large, it'll throw an except.
@@ -54,10 +55,13 @@ class ApiForm extends React.Component {
     // sessionStorage and/or localStorage:
     // https://stackoverflow.com/questions/24425885/failed-to-execute-pushstate-on-history-error-when-using-window-history-pushs
     // please also note that we need to replace the current link with localhost:3001/....
-    axios.get('https://api.github.com/users/charleywong').then(function(response) {
+    axios.post('http://127.0.0.1:5000/predict', this.state).then(function(response) {
+      history.push('/result', response.data)
+    });
+    /***axios.get('https://api.github.com/users/charleywong').then(function(response) {
       // console.log(response.data);
       history.push('/result',response.data)
-    });
+    });***/
 
   }
   render() {

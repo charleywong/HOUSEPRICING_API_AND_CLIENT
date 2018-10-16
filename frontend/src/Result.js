@@ -28,7 +28,7 @@ class Result extends React.Component {
     this.state = this.props.location.state;
   }
 
-  /*** DO FETCH API STUFF HERE ***/
+  /*** CHARTS AND DISPLAY DATA STUFF ***/
 
 
   render() {
@@ -51,7 +51,6 @@ class Result extends React.Component {
       <Banner />
       <div class='ui main text container' style={{marginBottom:60}}>
         <Title2 text='Showing Results'/>
-        <Title3 text={'For ' + this.state.city} />
         <ModalJSON />
         <p>Charts here...</p>
         <p>Other information here...</p>
