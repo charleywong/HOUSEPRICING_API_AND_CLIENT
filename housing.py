@@ -59,7 +59,7 @@ def print_score(m, x_train, y_train, x_test, y_test):
 class HousePrices:
     def __init__(self, csv_file):
         df_raw = pd.read_csv(csv_file, low_memory=False, parse_dates=["Date"])
-
+        self.df_raw = df_raw.copy( )
         # First we replace 0 with NaNs, then we want to set landsize to the mean of their suburb
         # Then drop any rows still Nan/infinite landsize
         df_raw["Landsize"] = df_raw["Landsize"].replace(0, np.nan)
@@ -154,6 +154,21 @@ class HousePrices:
         logPrice = self.mdl.predict([series])
         return math.e ** logPrice[0]
 
+    def predict_existing( self, address ):
+        s = self.df_raw[ self.df_raw[ 'Address' ] == address ]
+        zz = { }
+        for arg in S_ARGS:
+            if arg == 'year':
+                zz[ arg ] = float( pd.to_datetime( s[ 'Date' ].values[ 0 ] ).year )
+                continue
+            elif arg == 'month':
+                zz[ arg ] = float( pd.to_datetime( s[ 'Date' ].values[ 0 ] ).month )
+                continue
+            elif arg == 'day':
+                zz[ arg ] = float( pd.to_datetime( s[ 'Date' ].values[ 0 ] ).day )
+                continue
+            zz[ arg ] = s[ arg ].values[ 0 ]
+        return self.predict( zz )
 
 # Example of usage!
 if __name__ == "__main__":
@@ -176,3 +191,4 @@ if __name__ == "__main__":
         "day": 11.0,
     }
     print(hp.predict(zz))
+    print(hp.predict_existing('48 Abbotsford St'))
