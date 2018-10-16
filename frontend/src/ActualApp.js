@@ -1,12 +1,9 @@
 import React, { Component } from 'react';
-import { Button, Form, TextArea, Input, Radio, Select, Divider } from 'semantic-ui-react';
+import { Button, Form, Input } from 'semantic-ui-react';
 import { Redirect } from 'react-router';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 
 import './ActualApp.css';
-import Result from './Result.js';
-import LoginModal from './Nav.js';
 
 import bannerimg from './img/bg2.jpg';
 
@@ -54,9 +51,8 @@ class ApiForm extends React.Component {
   }
   handleSubmit(event) {
     event.preventDefault();
-    const data = new FormData(document.getElementById('apiform'));
+    //const data = new FormData(document.getElementById('apiform'));
 
-    console.log(this.state);
     // note that because this request is async, when handling response, we should try to use callback functions such as console.log
     // rather than functions like alert() which is also async
     // there is also a bug with this where if your resulting data is too large, it'll throw an except.
@@ -64,11 +60,12 @@ class ApiForm extends React.Component {
     // sessionStorage and/or localStorage:
     // https://stackoverflow.com/questions/24425885/failed-to-execute-pushstate-on-history-error-when-using-window-history-pushs
     // please also note that we need to replace the current link with localhost:3001/....
-    axios.post('http://localhost:5000/test/predict', this.state.data).then(function(response) {
-      // console.log(response)
-      history.push('/result', response.data)
-      // console.log(response)
-    });
+    // axios.post('http://localhost:5000/test/predict', this.state.data).then(function(response) {
+    //   // console.log(response)
+    //   history.push('/result', response.data)
+    //   // console.log(response)
+    // });
+    history.push('/result', this.state.data)
 
   }
   render() {
@@ -78,13 +75,13 @@ class ApiForm extends React.Component {
     return(
       <div>
       <Title3 text='Start Valuation' />
-      <form name='apiform' id='apiform'
+      <Form name='apiform' id='apiform'
         onSubmit={this.handleSubmit}
         class='ui form'
         style={{marginBottom:60}}>
         <div class='field'>
           <label>Street Address</label>
-            <input
+            <Input
               onChange={this.handleChange}
               name='address' id='address'
               value={this.state.address}
@@ -92,18 +89,18 @@ class ApiForm extends React.Component {
         </div>
         <div class='field'>
           <label>City/Town/Suburb</label>
-            <input
+            <Input
               onChange={this.handleChange}
               name='city' id='city'
               value={this.state.city}
               placeholder='e.g. New York City'/>
         </div>
-        <button
+        <Button
           type='submit'
           class='ui icon right labeled button'
           role='button'><i aria-hidden='true' class='right arrow icon' />Submit
-        </button>
-      </form>
+        </Button>
+      </Form>
       </div>
     );
   }
@@ -118,7 +115,7 @@ class ActualApp extends Component {
           <Title2 text='PROPERTY VALUATION API'/>
           <Title3 text='Overview' />
 
-          <h4>User inputs</h4>
+          <h4>User Inputs</h4>
           <p>Users are required to enter as much information about the target property as possible in order to produce accurate predictions about the housing market. Fields are as follows:</p>
           <h4>Output</h4>
           <p>The service will run your data through our machine learning model to give an accurate property valuation.</p>

@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { HashRouter, Route, Link, Redirect } from 'react-router-dom';
+import React from 'react';
+import { Link } from 'react-router-dom';
 
 import { Form, Modal, Button, Rail, Icon } from 'semantic-ui-react';
 
@@ -33,7 +33,7 @@ class LoginModal extends React.Component {
     event.preventDefault();
     //bug we should be using this
 
-    const data = new FormData(document.getElementById('login'));
+    //const data = new FormData(document.getElementById('login'));
 
     //post req so it's sent in the body rather than url
     //placeholder, trying to see if login button actually submits
@@ -117,7 +117,7 @@ class RegistrationModal extends React.Component {
     event.preventDefault();
     //bug we should be using this
 
-    const data = new FormData(document.getElementById('register'));
+    //const data = new FormData(document.getElementById('register'));
 
     //post req so it's sent in the body rather than url
     //placeholder, trying to see if login button actually submits
@@ -127,9 +127,6 @@ class RegistrationModal extends React.Component {
     const payload = {
       name:this.state.email,
       password:this.state.password
-    };
-    const config = {
-      headers: {'Access-Control-Allow-Origin': '*'}
     };
 
     /***
@@ -197,7 +194,7 @@ class Nav extends React.Component {
       <div class='inverted ui menu borderless fixed'>
         <div id='top'></div>
         <div class='yellow ui container'>
-          <Link to='/' class='yellow header item'><img src={logo} style={{marginRight: 15,}}/>HOUSOS</Link>
+          <Link to='/' class='yellow header item'><img src={logo} alt='logo' style={{marginRight: 15,}}/>HOUSOS</Link>
           <Link to='/'class='item'>Home</Link>
           <Link to="/api" class='item'>Explore the API</Link>
           <Link to='/docs'class='item'>Docs</Link>
