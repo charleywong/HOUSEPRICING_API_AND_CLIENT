@@ -6,6 +6,8 @@ from pymongo import MongoClient
 import json
 from bson import json_util
 
+from housing import HousePrices
+
 # API AND SWAGGER INIT
 blueprint = Blueprint('api', __name__)
 api = Api(blueprint, title='Our Api')
@@ -121,3 +123,22 @@ class login(Resource):
                     return {"message": "wrong password"}, 400
 
         return { 'message': 'user not found' }, 404
+
+@api.route('/predict')
+class Predict( Resource ):
+    @api.response(200, 'Successfully ')
+    @api.response(400, 'Invalid details (empty fields)')
+    def post(self):
+        arg = request.json
+        #validity check for payload
+        if "address" not in arg.keys():
+            return {"message": "Improper payload format - no proper address"}, 400
+
+        # initialise a new HousePrices object
+        hp = HousePrices("data/prices.csv")
+
+        # predict based on existing address in dataset
+        price = hp.predict_existing( arg[ "address" ] )
+        if price == -1:
+            return {"message": "Address cannot be predicted"}, 400
+        return {"price": price }

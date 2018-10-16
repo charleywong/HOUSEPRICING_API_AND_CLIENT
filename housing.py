@@ -129,7 +129,7 @@ class HousePrices:
         y_test = y_test.values.ravel()
 
         mdl = RandomForestRegressor(
-            n_jobs=-1, min_samples_leaf=3, n_estimators=150, oob_score=True
+            n_jobs=1, min_samples_leaf=3, n_estimators=150, oob_score=True
         )
         mdl.fit(x_train, y_train)
 
@@ -142,7 +142,8 @@ class HousePrices:
         for a in S_ARGS:
             if a not in args:
                 print("Didn't expect " + a)
-                return -1, "Required arguments not specified"
+                print("Required arguments not specified")
+                return -1
             if a == "Suburb":
                 vals.append(self.suburbCat[args[a]])
             elif a == "Type":
