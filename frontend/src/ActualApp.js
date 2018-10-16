@@ -6,6 +6,7 @@ import axios from 'axios';
 
 import './ActualApp.css';
 import Result from './Result.js';
+import LoginModal from './Nav.js';
 
 import bannerimg from './img/bg2.jpg';
 
@@ -31,14 +32,25 @@ class ApiForm extends React.Component {
   constructor(props) {
     super(props);
     this.location = this.props.location;
-    this.state = { address: '', city: '' };
+    this.state = { 'data': {address: '', city: '' }, loggedIn: true };
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
+
+  componentDidMount() {
+    console.log(localStorage.getItem('session'));
+    if (localStorage.getItem('session') === null) {
+      alert("You are unable to use this API without signing in!");
+      this.setState({loggedIn: false});
+    }
+  }
+
+
+
   handleChange(event) {
     const name = event.target.name;
     const value = event.target.value;
-    this.setState({[name]: value});
+    this.setState({ 'data': { [name]: value }});
   }
   handleSubmit(event) {
     event.preventDefault();
@@ -52,7 +64,7 @@ class ApiForm extends React.Component {
     // sessionStorage and/or localStorage:
     // https://stackoverflow.com/questions/24425885/failed-to-execute-pushstate-on-history-error-when-using-window-history-pushs
     // please also note that we need to replace the current link with localhost:3001/....
-    axios.post('http://localhost:5000/test/predict', this.state).then(function(response) {
+    axios.post('http://localhost:5000/test/predict', this.state.data).then(function(response) {
       // console.log(response)
       history.push('/result', response.data)
       // console.log(response)
@@ -60,6 +72,9 @@ class ApiForm extends React.Component {
 
   }
   render() {
+    if (this.state.loggedIn === false) {
+      return <Redirect to='/' />
+    }
     return(
       <div>
       <Title3 text='Start Valuation' />
