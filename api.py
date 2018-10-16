@@ -86,7 +86,7 @@ class register(Resource):
 class login(Resource):
 
     @api.expect(user_model, validate = True)
-    @api.response(200, 'Successfully found')
+    @api.response(200, 'Successfully found, will return a token in form "token-username"')
     @api.response(404, 'User not found.')
     @api.response(400, 'Invalid login details (empty fields)')
     def post(self):
