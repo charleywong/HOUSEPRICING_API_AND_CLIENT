@@ -5,33 +5,112 @@ import { Form, Modal, Button } from 'semantic-ui-react';
 
 import logo from './img/logo.svg';
 
-const LoginModal = () => (
-  <Modal size='tiny' trigger={<div class='item'>Login</div>} closeIcon>
-  <Modal.Header>Login</Modal.Header>
-  <Modal.Content>
-    <Modal.Description>
-      <div>
-      <Form name='login' id='login' class='ui form'>
-        <Form.Field>
-          <label>Email</label>
-          <input
-            name='email'
-            placeholder='johnsmith@example.com'
-          />
-        </Form.Field>
-        <Form.Field>
-          <label>Password</label>
-          <input
-            type='password'
-          />
-        </Form.Field>
-        <Button type='submit'>Login</Button>
-      </Form><br />
-      </div>
-    </Modal.Description>
-  </Modal.Content>
-  </Modal>
-);
+import axios from 'axios'
+
+
+class LoginModal extends React.Component {
+  constructor(props) {
+    super (props);
+    this.state = {email:'', password:''};
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  handleChange(event) {
+    const name = event.target.name;
+    const value = event.target.value;
+    this.setState({[name]: value});
+  }
+
+  handleSubmit(event) {
+    event.preventDefault();
+    //bug we should be using this
+
+    const data = new FormData(document.getElementById('login'));
+
+    //post req so it's sent in the body rather than url
+    //placeholder, trying to see if login button actually submits
+    // console.log(this.state.email)
+    // console.log(this.state.password)
+    const url = 'http://localhost:5000/test/login';
+    const payload = {
+      name:this.state.email,
+      password:this.state.password
+    };
+    const config = {
+      headers: {'Access-Control-Allow-Origin': '*'}
+    };
+    axios.post(url, payload)
+    .then(response => console.log(response.data));
+
+    // close the modal
+  }
+
+  render() {
+    return(
+      <Modal size='tiny' trigger={<div class='item'>Login</div>} closeIcon>
+      <Modal.Header>Login</Modal.Header>
+      <Modal.Content>
+        <Modal.Description>
+          <div>
+          <Form name='login' onSubmit={this.handleSubmit} id='login' class='ui form'>
+            <Form.Field>
+              <label>Email</label>
+              <input
+                onChange={this.handleChange}
+                name='email'
+                placeholder='johnsmith@example.com'
+                value={this.state.email}
+              />
+            </Form.Field>
+            <Form.Field>
+              <label>Password</label>
+              <input
+                onChange={this.handleChange}
+                type='password'
+                name='password'
+                value={this.state.password}
+              />
+            </Form.Field>
+            <Button type='submit' >Login</Button>
+          </Form><br />
+          </div>
+        </Modal.Description>
+      </Modal.Content>
+      </Modal>
+      );
+  }
+}
+
+
+// const LoginModal = () => (
+//   <Modal size='tiny' trigger={<div class='item'>Login</div>} closeIcon>
+//   <Modal.Header>Login</Modal.Header>
+//   <Modal.Content>
+//     <Modal.Description>
+//       <div>
+//       <Form name='login' id='login' class='ui form'>
+//         <Form.Field>
+//           <label>Email</label>
+//           <input
+//             name='email'
+//             placeholder='johnsmith@example.com'
+//           />
+//         </Form.Field>
+//         <Form.Field>
+//           <label>Password</label>
+//           <input
+//             type='password'
+        
+//           />
+//         </Form.Field>
+//         <Button type='submit'>Login</Button>
+//       </Form><br />
+//       </div>
+//     </Modal.Description>
+//   </Modal.Content>
+//   </Modal>
+// );
 /*** navbar ***/
 const Nav = props => (
       <div class='inverted ui menu borderless fixed'>

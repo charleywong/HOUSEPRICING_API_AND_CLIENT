@@ -53,7 +53,7 @@ class ApiForm extends React.Component {
     // googling, it says a way around this is to not use the history thing and use
     // sessionStorage and/or localStorage:
     // https://stackoverflow.com/questions/24425885/failed-to-execute-pushstate-on-history-error-when-using-window-history-pushs
-    // please also note that we need to replace the current link with localhost:3001/....
+    // please also note that we need to replace the current link with localhost:3001/.... 
     axios.get('https://api.github.com/users/charleywong').then(function(response) {
       // console.log(response.data);
       history.push('/result',response.data)
