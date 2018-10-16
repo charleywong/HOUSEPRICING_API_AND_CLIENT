@@ -1,8 +1,24 @@
 import pandas as pd, numpy as np
 
 """
+Description:
     Interface for obtaining school information based on dataset
     located in csv_file
+
+Fields:
+    School_Name - self-explanatory
+    Suburb - self-explanatory
+    VCE_Students - Number of students enrolled in at least one VCE 
+        subject
+    VCE_Completion% - Percentage of students that completed VCE
+    VCE_Median - Median of VCE score
+    VCE_Over40% - Percentage that scored over 40
+
+Notes:
+    VCE scores are in the range of [0,50]
+
+Source: 
+    http://topscores.co/report.php?z=Vic&req=vce-school
 """
 class SchoolInfo:
     def __init__( self, csv_file ):
