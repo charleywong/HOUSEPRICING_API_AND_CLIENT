@@ -10,3 +10,7 @@ api = Api(blueprint, title='Our Api')
 class HelloWorld(Resource):
     def get(self):
         return { 'some': 'shit right here' }, 200
+
+# api call from react front end:
+    # XMLHttpRequest()
+    # 
