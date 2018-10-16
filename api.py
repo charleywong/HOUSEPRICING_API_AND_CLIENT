@@ -7,7 +7,6 @@ import json
 from bson import json_util
 
 from housing import HousePrices
-from school import SchoolInfo
 
 # API AND SWAGGER INIT
 blueprint = Blueprint('api', __name__)
@@ -126,7 +125,7 @@ class login(Resource):
         return { 'message': 'user not found' }, 404
 
 @api.route('/predict')
-class Prediction( Resource ):
+class Predict( Resource ):
     @api.response(200, 'Successfully ')
     @api.response(400, 'Invalid details (empty fields)')
     def post(self):
@@ -143,40 +142,3 @@ class Prediction( Resource ):
         if price == -1:
             return {"message": "Address cannot be predicted"}, 400
         return {"price": price }
-
-@api.route('/schools')
-class Schools( Resource ):
-    @api.response(200, 'Success')
-    def get( self ):
-        si = SchoolInfo( "data/school.csv" )
-        result = si.search( )
-        columns = si.get_columns( )
-
-        result_lst = [ ]
-        for r in result:
-            res_dict = { }
-            for idx, col in enumerate( columns ):
-                res_dict[ col ] = r[ idx ]
-            result_lst.append( res_dict )
-        return {
-            "schools": result_lst
-        }
-
-@api.route( '/school/<suburb>' )
-class School( Resource ):
-    @api.response( 200, 'Success' )
-    # @api.response( 404, '' )
-    def get( self, suburb ):
-        si = SchoolInfo( "data/school.csv" )
-        result = si.search( suburb )
-        columns = si.get_columns( )
-
-        result_lst = [ ]
-        for r in result:
-            res_dict = { }
-            for idx, col in enumerate( columns ):
-                res_dict[ col ] = r[ idx ]
-            result_lst.append( res_dict )
-        return {
-            "schools": result_lst
-        }
