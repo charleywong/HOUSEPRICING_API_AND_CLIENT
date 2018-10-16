@@ -23,10 +23,15 @@ usr_details = {
 }
 
 
-user_model = api.model('User Login Data', {
+user_model = api.model('User Register and Login Data', {
 'name': fields.String,
 'password': fields.String
 })
+
+token_model = { 
+  "name": None,
+  "token": None
+} 
 
 
 host='mongodb://gontri:Lolcats123@ds153552.mlab.com:53552/ass2'
@@ -67,8 +72,6 @@ class register(Resource):
             if document["name"] == arg["name"]:
                 return {"message": "username already exists"}, 400
 
-
-
         new_data = user_model
 
         new_data["name"] = arg["name"]
@@ -81,15 +84,40 @@ class register(Resource):
 
 @api.route('/login')
 class login(Resource):
-    @api.expect(user_model, validate = True)
 
+    @api.expect(user_model, validate = True)
     @api.response(200, 'Successfully found')
     @api.response(404, 'User not found.')
     @api.response(400, 'Invalid login details (empty fields)')
     def post(self):
-        new_data = user_info
-        new_data["name"] = "Cat"
-        new_data["password"] = "Tuong"
+       
+        arg = request.json
+        
+        if "name" not in arg.keys():
+            return {"message": "Improper payload format - no proper username"}, 400
+
+        if "password" not in arg.keys():
+            return {"message": "Improper payload format - no proper password"}, 400
+
+        if (arg["name"] == "") or (arg["password"] == ""):
+            return {"message": "Provide non-empty user/pass"}, 400
+
+
         collection = db["users"]
-        collection.insert_one(json.loads(json_util.dumps(new_data)))
-        return { 'some': 'shit right here' }, 200
+
+        for document in collection.find():
+            if document["name"] == arg["name"]:
+                if document["password"] == arg["password"]:
+                    #make a token with a date that is valid and send it 
+                    token = token_model
+                    token["name"] = arg["name"]
+                    token["token"] = "token-"+arg["name"]
+
+                    collection = db["tokens"]
+                    collection.insert_one(json.loads(json_util.dumps(token)))
+                    return {"message": token["token"] }, 200
+
+                else:
+                    return {"message": "wrong password"}, 400
+
+        return { 'message': 'user not found' }, 404
