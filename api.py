@@ -10,6 +10,10 @@ from housing import HousePrices
 from school import SchoolInfo
 from crime import CrimeInfo
 
+import requests
+
+MAPBOX_TOKEN = 'pk.eyJ1IjoiZmZmeDAiLCJhIjoiY2psbGtsa21nMHlneDNwcW4wbzg3bDd5eiJ9.Q3ZS5kabj_xO1KVifuuQJQ'
+
 # API AND SWAGGER INIT
 blueprint = Blueprint('api', __name__)
 api = Api(blueprint, title='Our Api')
@@ -125,6 +129,92 @@ class login(Resource):
                     return {"message": "wrong password"}, 400
 
         return { 'message': 'user not found' }, 404
+
+"""
+    -- House Prices
+"""
+
+house_input = api.model( 'HouseIn', {
+    # "Suburb": fields.String,
+    "Type": fields.String( description='h - House, u - Unit, t - Townhouse', required=True ),
+    "Address": fields.String( required=True ),
+    # "Postcode": fields.Float,
+    "Bedroom": fields.Integer( description='Number of bedrooms', required=True, min=0 ),
+    "Bathroom": fields.Integer( description='Number of bathrooms', required=True, min=0 ),
+    "Car": fields.Integer( description='Number of garage/car slots', required=True, min=0 ),
+    "Landsize": fields.Float( description='Land size in m^2', required=True ),
+    "BuildingArea": fields.Float( description='Building Area in m^2', required=True ),
+    # "Latitude": fields.
+    # "Longtitude": fields.
+    "year": fields.Integer( required=True ),
+    "month": fields.Integer( required=True ),
+    "day": fields.Integer( required=True )
+} )
+
+@api.route( '/predict_price' )
+class PredictPrice( Resource ):
+    @api.response( 200, 'Success' )
+    @api.response( 400, 'One of the required fields was not given or specified incorrectly')
+    @api.response( 503, 'Mapbox API service unavailable (token usage exhausted possibly)' )
+    # @api.response( 404, 'Add')
+
+    @api.expect( house_input, validate=True )
+    def post( self ):
+
+        for key in house_input:
+            if key not in request.json:
+                return {
+                    'message': 'Field {} was not given in payload'.format( key )
+                }, 400
+
+        js = request.json
+        (t, addr, ber, bar, car, lsz, barea, yr, mn, dy) = [ js[ k ] for k in js.keys( ) ]
+
+        if t not in [ 'h', 'u', 't' ]:
+            return {
+                'message': 'Type field expected to be H, U or T'
+            }, 400
+
+        URL = 'https://api.mapbox.com/geocoding/v5/mapbox.places/{}.json?access_token={}'.format( addr, MAPBOX_TOKEN )
+        res = requests.get( URL, headers={ 'User-Agent': 'Custom' } ) # hack it so mapbox returns a result
+        if res.status_code != 200:
+            return {
+                'message': 'Mapbox API is rejecting requests'
+            }, 503
+        
+        result = res.json( )[ 'features' ][ 0 ]
+        address = result[ 'address' ] + result[ 'text' ]
+        (lng,lat) = result[ 'geometry'][ 'coordinates' ]
+        (suburb, postcode) = (None, None)
+        for loc in result[ 'context' ]:
+            if 'locality' in loc[ 'id' ]:
+                suburb = loc[ 'text' ]
+            if 'postcode' in loc[ 'id' ]:
+                postcode = float( loc[ 'text' ] )
+
+        try:
+            in_dict = {
+                "Suburb": suburb,
+                "Type": t,
+                "Postcode": postcode,
+                "Bedroom2": float( ber ),
+                "Bathroom": float( bar ),
+                "Car": float( car ),
+                "Landsize": float( lsz ),
+                "BuildingArea": float( barea ),
+                "Lattitude": lat,
+                "Longtitude": lng,
+                "year": float( yr ),
+                "month": float( mn ),
+                "day": float( dy ),
+            }
+        except ValueError:
+            return {
+                'message': 'Values could not be converted into floats'
+            }, 400
+        return {
+            'price': hp.predict( in_dict )
+        }, 200
 
 house_model = api.model( 'HouseInput', {
     'address': fields.String( description='Address of house to predict', required=True )
