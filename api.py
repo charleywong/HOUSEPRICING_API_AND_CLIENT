@@ -10,6 +10,10 @@ from housing import HousePrices
 from school import SchoolInfo
 from crime import CrimeInfo
 
+import requests
+
+MAPBOX_TOKEN = 'pk.eyJ1IjoiZmZmeDAiLCJhIjoiY2psbGtsa21nMHlneDNwcW4wbzg3bDd5eiJ9.Q3ZS5kabj_xO1KVifuuQJQ'
+
 # API AND SWAGGER INIT
 blueprint = Blueprint('api', __name__)
 api = Api(blueprint, title='Our Api')
@@ -126,6 +130,92 @@ class login(Resource):
 
         return { 'message': 'user not found' }, 404
 
+"""
+    -- House Prices
+"""
+
+house_input = api.model( 'HouseIn', {
+    # "Suburb": fields.String,
+    "Type": fields.String( description='h - House, u - Unit, t - Townhouse', required=True ),
+    "Address": fields.String( required=True ),
+    # "Postcode": fields.Float,
+    "Bedroom": fields.Integer( description='Number of bedrooms', required=True, min=0 ),
+    "Bathroom": fields.Integer( description='Number of bathrooms', required=True, min=0 ),
+    "Car": fields.Integer( description='Number of garage/car slots', required=True, min=0 ),
+    "Landsize": fields.Float( description='Land size in m^2', required=True ),
+    "BuildingArea": fields.Float( description='Building Area in m^2', required=True ),
+    # "Latitude": fields.
+    # "Longtitude": fields.
+    "year": fields.Integer( required=True ),
+    "month": fields.Integer( required=True ),
+    "day": fields.Integer( required=True )
+} )
+
+@api.route( '/predict_price' )
+class PredictPrice( Resource ):
+    @api.response( 200, 'Success' )
+    @api.response( 400, 'One of the required fields was not given or specified incorrectly')
+    @api.response( 503, 'Mapbox API service unavailable (token usage exhausted possibly)' )
+    # @api.response( 404, 'Add')
+
+    @api.expect( house_input, validate=True )
+    def post( self ):
+
+        for key in house_input:
+            if key not in request.json:
+                return {
+                    'message': 'Field {} was not given in payload'.format( key )
+                }, 400
+
+        js = request.json
+        (t, addr, ber, bar, car, lsz, barea, yr, mn, dy) = [ js[ k ] for k in js.keys( ) ]
+
+        if t not in [ 'h', 'u', 't' ]:
+            return {
+                'message': 'Type field expected to be H, U or T'
+            }, 400
+
+        URL = 'https://api.mapbox.com/geocoding/v5/mapbox.places/{}.json?access_token={}'.format( addr, MAPBOX_TOKEN )
+        res = requests.get( URL, headers={ 'User-Agent': 'Custom' } ) # hack it so mapbox returns a result
+        if res.status_code != 200:
+            return {
+                'message': 'Mapbox API is rejecting requests'
+            }, 503
+        
+        result = res.json( )[ 'features' ][ 0 ]
+        address = result[ 'address' ] + result[ 'text' ]
+        (lng,lat) = result[ 'geometry'][ 'coordinates' ]
+        (suburb, postcode) = (None, None)
+        for loc in result[ 'context' ]:
+            if 'locality' in loc[ 'id' ]:
+                suburb = loc[ 'text' ]
+            if 'postcode' in loc[ 'id' ]:
+                postcode = float( loc[ 'text' ] )
+
+        try:
+            in_dict = {
+                "Suburb": suburb,
+                "Type": t,
+                "Postcode": postcode,
+                "Bedroom2": float( ber ),
+                "Bathroom": float( bar ),
+                "Car": float( car ),
+                "Landsize": float( lsz ),
+                "BuildingArea": float( barea ),
+                "Lattitude": lat,
+                "Longtitude": lng,
+                "year": float( yr ),
+                "month": float( mn ),
+                "day": float( dy ),
+            }
+        except ValueError:
+            return {
+                'message': 'Values could not be converted into floats'
+            }, 400
+        return {
+            'price': hp.predict( in_dict )
+        }, 200
+
 house_model = api.model( 'HouseInput', {
     'address': fields.String( description='Address of house to predict', required=True )
 } )
@@ -147,6 +237,33 @@ class Predict( Resource ):
         if price == -1:
             return {"message": "Address cannot be predicted"}, 400
         return {"price": price }
+
+heatmap_model = api.model( 'HeatmapIn', {
+    'suburb': fields.String( required=True )
+} )
+
+datapoint = api.model( 'Datapoint', {
+    'long': fields.Float( ),
+    'lat': fields.Float( )
+} )
+
+heatmap_out = api.model( 'HeatmapOut', {
+    'min': fields.Float( description='Minimum price of heatmap' ),
+    'max': fields.Float( description='Maximum price of heatmap' ),
+    'results': fields.List( fields.Nested( datapoint ) )
+})
+
+@api.route( '/heatmap/<suburb>' )
+class PriceHeatmap( Resource ):
+    @api.response( 200, 'Success', heatmap_out )
+    # @api.response( 404, 'Suburb not found' )
+    def get( self, suburb ):
+        (mn, mx, results) = hp.heatmap( suburb )
+        return {
+            'min': mn,
+            'max': mx,
+            'results': results
+        }, 200
 
 """
     -- School
@@ -172,11 +289,21 @@ Optional sort field:
 @api.route('/schools')
 class Schools( Resource ):
     @api.response(200, 'Success')
-    @api.response( 400, 'Invalid sort_by field specified, expected between 0 and 3' )
+    @api.response( 400, 'Invalid field or field value specified' )
     @api.doc( params={ 'sort_by': school_sort_desc }, required=False )
+    @api.doc( params={ 'ascending': 'true for ascending, false for descending' }, required=False )
     def get( self ):
-        result = si.search( )
-        columns = si.get_columns( )
+        ascending = True
+        if 'ascending' in request.args:
+            asc = request.args.get( 'ascending' )
+            if 'true' not in asc and 'false' not in asc:
+                return { 
+                    'message': 'Invalid ascending field specified, expected true or false' 
+                }, 400
+            elif asc == 'true':
+                ascending = True
+            elif asc == 'false':
+                ascending = False
 
         sort_by = None
         if 'sort_by' in request.args:
@@ -190,6 +317,9 @@ class Schools( Resource ):
                 return { 
                     'message': 'Invalid sort_by field specified, expected between 0 and 3' 
                 }, 400
+
+        result = si.search( sort=sort_by, asc=ascending )
+        columns = si.get_columns( )
 
         result_lst = [ ]
         for r in result:
@@ -204,16 +334,27 @@ class Schools( Resource ):
 @api.route( '/school/<suburb>' )
 class School( Resource ):
     @api.response( 200, 'Success', school_output )
-    @api.response( 400, 'Invalid sort_by field specified, expected between 0 and 3' )
+    @api.response( 400, 'Invalid field or field value specified' )
     @api.response( 404, 'Suburb not found' )
     @api.doc( params={ 'sort_by': school_sort_desc }, required=False )
+    @api.doc( params={ 'ascending': 'true for ascending, false for descending' }, required=False )
     def get( self, suburb ):
         if suburb not in si.get_suburb_list( ):
             return {
                 'message': 'Suburb not found'
             }, 404
-        result = si.search( suburb )
-        columns = si.get_columns( )
+
+        ascending = True
+        if 'ascending' in request.args:
+            asc = request.args.get( 'ascending' )
+            if 'true' not in asc and 'false' not in asc:
+                return { 
+                    'message': 'Invalid ascending field specified, expected true or false' 
+                }, 400
+            elif asc == 'true':
+                ascending = True
+            elif asc == 'false':
+                ascending = False
 
         sort_by = None
         if 'sort_by' in request.args:
@@ -228,6 +369,8 @@ class School( Resource ):
                     'message': 'Invalid sort_by field specified, expected between 0 and 3' 
                 }, 400
 
+        result = si.search( suburb, sort=sort_by )
+        columns = si.get_columns( )
 
         result_lst = [ ]
         for r in result:

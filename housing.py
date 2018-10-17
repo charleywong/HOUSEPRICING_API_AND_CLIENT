@@ -171,6 +171,19 @@ class HousePrices:
             zz[ arg ] = s[ arg ].values[ 0 ]
         return self.predict( zz )
 
+    def heatmap( self, suburb ):
+        df = self.df_raw.dropna( ).copy( )
+        mn = df[ df[ 'Suburb' ] == suburb ][ 'Price' ].min( )
+        mx = df[ df[ 'Suburb' ] == suburb ][ 'Price' ].min( )
+        res = [ ]
+        for row in df.values:
+            res.append( {
+                'price': row[ 4 ],
+                'lng': row[ 18 ],
+                'lat': row[ 17 ]
+            } )
+        return (mn, mx, res)
+
 # Example of usage!
 if __name__ == "__main__":
     hp = HousePrices("data/prices.csv")
@@ -193,3 +206,4 @@ if __name__ == "__main__":
     }
     print(hp.predict(zz))
     print(hp.predict_existing('48 Abbotsford St'))
+    print(hp.heatmap('Abbotsford'))
