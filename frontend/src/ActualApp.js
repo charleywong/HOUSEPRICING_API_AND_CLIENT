@@ -97,8 +97,10 @@ class ApiForm extends React.Component {
         </div>
         <Button
           type='submit'
-          class='ui icon right labeled button'
-          role='button'><i aria-hidden='true' class='right arrow icon' />Submit
+          content='Submit'
+          icon='right arrow'
+          labelPosition='left'
+          role='button'>
         </Button>
       </Form>
       </div>
