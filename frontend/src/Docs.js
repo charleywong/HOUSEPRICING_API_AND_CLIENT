@@ -1,5 +1,4 @@
-import React, { Component } from 'react';
-import { HashRouter, Route, Link } from 'react-router-dom';
+import React from 'react';
 
 import bannerimg from './img/banner2.jpg';
 
@@ -28,14 +27,14 @@ const Docs = () => (
       <Title3 text='Versioning' />
       <Title3 text='Git Repository' />
       <p>Please contact us for access to the repository.</p>
-      <a href="https://github.com/crisb0/CS9321_ass03/" target="_blank"><button class='ui animated button'>
+      <a href="https://github.com/crisb0/CS9321_ass03/" target="_blank" rel="noopener noreferrer"><button class='ui animated button'>
         <div class='visible content'>Github Link</div>
         <div class='hidden content'><i class='external alternate icon'/></div>
       </button></a>
 
       <Title3 text='Google Drive' />
       <p>For our meeting deliverable documents and project plan.</p>
-      <a  href='https://drive.google.com/drive/folders/14iEiMHsPoinbkgTtaa5QAgRR_WCscU4M?usp=sharing' target="_blank"><button class='ui button animated' role='button'>
+      <a  href='https://drive.google.com/drive/folders/14iEiMHsPoinbkgTtaa5QAgRR_WCscU4M?usp=sharing' target="_blank" rel="noopener noreferrer"><button class='ui button animated'>
         <div class='visible content'>G Drive Link</div>
         <div class='hidden content'><i class='external alternate icon'/></div>
       </button></a>

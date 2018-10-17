@@ -131,7 +131,7 @@ house_model = api.model( 'HouseInput', {
 } )
 
 @api.route('/predict')
-class Prediction( Resource ):
+class Predict( Resource ):
     @api.response(200, 'Successfully ')
     @api.response(400, 'Invalid details (empty fields)')
     @api.expect( house_model, validate=True )
