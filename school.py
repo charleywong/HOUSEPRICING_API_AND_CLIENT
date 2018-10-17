@@ -30,12 +30,24 @@ class SchoolInfo:
     def get_suburb_list( self ):
         return list( self.df[ 'Suburb' ].unique( ) )
 
-    def search( self, suburb=None ):
+    def search( self, suburb=None, sort=None, asc=True ):
         result = None
         if not suburb:
-            result = self.df
+            result = self.df.copy( )
         else:
-            result = self.df[ self.df[ 'Suburb' ] == suburb ]
+            result = self.df[ self.df[ 'Suburb' ] == suburb ].copy( )
+        
+        if sort == 0:
+            result.sort_values( by=[ 'VCE_Students' ], inplace=True, ascending=asc )
+        elif sort == 1:
+            result.sort_values( by=[ 'VCE_Completion%' ], inplace=True, ascending=asc )
+        elif sort == 2:
+            result.sort_values( by=[ 'VCE_Median' ], inplace=True, ascending=asc )
+        elif sort == 3:
+            result.sort_values( by=[ 'VCE_Over40%' ], inplace=True, ascending=asc )
+        elif sort == None and asc == False:
+            result.sort_values( by=[ 'School_Name' ], inplace=True, ascending=asc )
+
         res = [ ]
         for row in result.values:
             res.append( list( row ) )

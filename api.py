@@ -172,11 +172,21 @@ Optional sort field:
 @api.route('/schools')
 class Schools( Resource ):
     @api.response(200, 'Success')
-    @api.response( 400, 'Invalid sort_by field specified, expected between 0 and 3' )
+    @api.response( 400, 'Invalid field or field value specified' )
     @api.doc( params={ 'sort_by': school_sort_desc }, required=False )
+    @api.doc( params={ 'ascending': 'true for ascending, false for descending' }, required=False )
     def get( self ):
-        result = si.search( )
-        columns = si.get_columns( )
+        ascending = True
+        if 'ascending' in request.args:
+            asc = request.args.get( 'ascending' )
+            if 'true' not in asc and 'false' not in asc:
+                return { 
+                    'message': 'Invalid ascending field specified, expected true or false' 
+                }, 400
+            elif asc == 'true':
+                ascending = True
+            elif asc == 'false':
+                ascending = False
 
         sort_by = None
         if 'sort_by' in request.args:
@@ -190,6 +200,9 @@ class Schools( Resource ):
                 return { 
                     'message': 'Invalid sort_by field specified, expected between 0 and 3' 
                 }, 400
+
+        result = si.search( sort=sort_by, asc=ascending )
+        columns = si.get_columns( )
 
         result_lst = [ ]
         for r in result:
@@ -204,16 +217,27 @@ class Schools( Resource ):
 @api.route( '/school/<suburb>' )
 class School( Resource ):
     @api.response( 200, 'Success', school_output )
-    @api.response( 400, 'Invalid sort_by field specified, expected between 0 and 3' )
+    @api.response( 400, 'Invalid field or field value specified' )
     @api.response( 404, 'Suburb not found' )
     @api.doc( params={ 'sort_by': school_sort_desc }, required=False )
+    @api.doc( params={ 'ascending': 'true for ascending, false for descending' }, required=False )
     def get( self, suburb ):
         if suburb not in si.get_suburb_list( ):
             return {
                 'message': 'Suburb not found'
             }, 404
-        result = si.search( suburb )
-        columns = si.get_columns( )
+
+        ascending = True
+        if 'ascending' in request.args:
+            asc = request.args.get( 'ascending' )
+            if 'true' not in asc and 'false' not in asc:
+                return { 
+                    'message': 'Invalid ascending field specified, expected true or false' 
+                }, 400
+            elif asc == 'true':
+                ascending = True
+            elif asc == 'false':
+                ascending = False
 
         sort_by = None
         if 'sort_by' in request.args:
@@ -228,6 +252,8 @@ class School( Resource ):
                     'message': 'Invalid sort_by field specified, expected between 0 and 3' 
                 }, 400
 
+        result = si.search( suburb, sort=sort_by )
+        columns = si.get_columns( )
 
         result_lst = [ ]
         for r in result:
