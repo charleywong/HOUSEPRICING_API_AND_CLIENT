@@ -27,6 +27,9 @@ class SchoolInfo:
     def get_columns( self ):
         return list( self.df.columns )
 
+    def get_suburb_list( self ):
+        return list( self.df[ 'Suburb' ].unique( ) )
+
     def search( self, suburb=None ):
         result = None
         if not suburb:
