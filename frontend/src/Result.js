@@ -25,13 +25,14 @@ class Result extends React.Component {
     super(props);
     this.state = {
       loading: true,
-      data: this.props.location.state
+      data: this.props.location.state,
     };
     console.log(this.state);
 
+
     axios.post('http://localhost:5000/test/predict', this.state.data).then(function(response) {
-      // console.log(response)
-       console.log(response.data)
+      console.log(response.data)
+       // console.log(this.state.predictRes);
     });
   }
 
