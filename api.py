@@ -238,6 +238,33 @@ class Predict( Resource ):
             return {"message": "Address cannot be predicted"}, 400
         return {"price": price }
 
+heatmap_model = api.model( 'HeatmapIn', {
+    'suburb': fields.String( required=True )
+} )
+
+datapoint = api.model( 'Datapoint', {
+    'long': fields.Float( ),
+    'lat': fields.Float( )
+} )
+
+heatmap_out = api.model( 'HeatmapOut', {
+    'min': fields.Float( description='Minimum price of heatmap' ),
+    'max': fields.Float( description='Maximum price of heatmap' ),
+    'results': fields.List( fields.Nested( datapoint ) )
+})
+
+@api.route( '/heatmap/<suburb>' )
+class PriceHeatmap( Resource ):
+    @api.response( 200, 'Success', heatmap_out )
+    # @api.response( 404, 'Suburb not found' )
+    def get( self, suburb ):
+        (mn, mx, results) = hp.heatmap( suburb )
+        return {
+            'min': mn,
+            'max': mx,
+            'results': results
+        }, 200
+
 """
     -- School
 """
