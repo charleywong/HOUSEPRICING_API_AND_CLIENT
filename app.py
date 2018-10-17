@@ -1,7 +1,7 @@
 from flask import Flask, Blueprint, render_template, send_from_directory
 from flask_restplus import Resource, Api
 
-from api import blueprint
+from api import blueprint, init
 from flask_cors import CORS
 
 app = Flask(__name__, static_folder='templates/static')
@@ -17,4 +17,5 @@ def index():
 app.register_blueprint(blueprint, url_prefix='/test')
 
 if __name__ == '__main__':
+    init( )
     app.run(debug=True, threaded=True, port=5000)

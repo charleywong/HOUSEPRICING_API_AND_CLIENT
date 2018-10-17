@@ -40,17 +40,17 @@ class CrimeInfo:
         return list(self.df["Suburb"].unique())
 
     # gb_type accepts 'sum, mean, median'
-    def get_suburb_total_crimes(self, suburb, gb_type="sum"):
-        if gb_type not in GROUP_BY:
+    def get_suburb_total_crimes(self, suburb, gb_type=0):
+        if gb_type < 0 or gb_type > 2:
             return None
 
         gb = self.df[self.df["Suburb"] == suburb].groupby("Suburb")["Incidents"]
 
-        if gb_type == "sum":
+        if gb_type == 0:
             return gb.sum().values[0]
-        elif gb_type == "mean":
+        elif gb_type == 1:
             return gb.mean().values[0]
-        elif gb_type == "median":
+        elif gb_type == 2:
             return gb.median().values[0]
 
 

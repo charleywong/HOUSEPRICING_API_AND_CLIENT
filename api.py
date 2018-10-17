@@ -7,6 +7,8 @@ import json
 from bson import json_util
 
 from housing import HousePrices
+from school import SchoolInfo
+from crime import CrimeInfo
 
 # API AND SWAGGER INIT
 blueprint = Blueprint('api', __name__)
@@ -45,7 +47,7 @@ host='mongodb://gontri:Lolcats123@ds153552.mlab.com:53552/ass2'
 client = MongoClient(host)
 db = client['ass2']
 
-
+(hp, si, ci) = (None, None, None)
 
 # API ROUTES HERE?
 @api.route('/register')
@@ -124,10 +126,15 @@ class login(Resource):
 
         return { 'message': 'user not found' }, 404
 
+house_model = api.model( 'HouseInput', {
+    'address': fields.String( description='Address of house to predict', required=True )
+} )
+
 @api.route('/predict')
 class Predict( Resource ):
     @api.response(200, 'Successfully ')
     @api.response(400, 'Invalid details (empty fields)')
+    @api.expect( house_model, validate=True )
     def post(self):
         arg = request.json
         #validity check for payload
@@ -135,10 +142,152 @@ class Predict( Resource ):
             return {"message": "Improper payload format - no proper address"}, 400
 
         # initialise a new HousePrices object
-        hp = HousePrices("data/prices.csv")
-
         # predict based on existing address in dataset
         price = hp.predict_existing( arg[ "address" ] )
         if price == -1:
             return {"message": "Address cannot be predicted"}, 400
         return {"price": price }
+
+"""
+    -- School
+"""
+
+school_output = api.model( 'SchoolOut', {
+    'School_Name': fields.String( description='Name of the school'),
+    'Suburb': fields.String( description='Name of suburb' ),
+    'VCE_Students': fields.Integer( description='Number of students enrolled in at least one VCE subject'),
+    'VCE_Completion%': fields.Float( description='Percentage of students that completed VCE' ),
+    'VCE_Median': fields.Integer( description='Median of VCE score' ),
+    'VCE_Over40%': fields.Float( description='Percentage that scored over 40' ),
+} )
+
+school_sort_desc = """
+Optional sort field: 
+    0 - number of students, 
+    1 - completion %, 
+    2 - median, 
+    3 - over 40%
+"""
+
+@api.route('/schools')
+class Schools( Resource ):
+    @api.response(200, 'Success')
+    @api.response( 400, 'Invalid sort_by field specified, expected between 0 and 3' )
+    @api.doc( params={ 'sort_by': school_sort_desc }, required=False )
+    def get( self ):
+        result = si.search( )
+        columns = si.get_columns( )
+
+        sort_by = None
+        if 'sort_by' in request.args:
+            try:
+                sort_by = int( request.args.get( 'sort_by' ) )
+                if sort_by < 0 or sort_by > 3:
+                    return { 
+                        'message': 'Invalid sort_by field specified, expected between 0 and 3' 
+                    }, 400
+            except ValueError:
+                return { 
+                    'message': 'Invalid sort_by field specified, expected between 0 and 3' 
+                }, 400
+
+        result_lst = [ ]
+        for r in result:
+            res_dict = { }
+            for idx, col in enumerate( columns ):
+                res_dict[ col ] = r[ idx ]
+            result_lst.append( res_dict )
+        return {
+            "schools": result_lst
+        }, 200
+
+@api.route( '/school/<suburb>' )
+class School( Resource ):
+    @api.response( 200, 'Success', school_output )
+    @api.response( 400, 'Invalid sort_by field specified, expected between 0 and 3' )
+    @api.response( 404, 'Suburb not found' )
+    @api.doc( params={ 'sort_by': school_sort_desc }, required=False )
+    def get( self, suburb ):
+        if suburb not in si.get_suburb_list( ):
+            return {
+                'message': 'Suburb not found'
+            }, 404
+        result = si.search( suburb )
+        columns = si.get_columns( )
+
+        sort_by = None
+        if 'sort_by' in request.args:
+            try:
+                sort_by = int( request.args.get( 'sort_by' ) )
+                if sort_by < 0 or sort_by > 3:
+                    return { 
+                        'message': 'Invalid sort_by field specified, expected between 0 and 3' 
+                    }, 400
+            except ValueError:
+                return { 
+                    'message': 'Invalid sort_by field specified, expected between 0 and 3' 
+                }, 400
+
+
+        result_lst = [ ]
+        for r in result:
+            res_dict = { }
+            for idx, col in enumerate( columns ):
+                res_dict[ col ] = r[ idx ]
+            result_lst.append( res_dict )
+        return {
+            "schools": result_lst
+        }, 200
+
+"""
+    -- Crimes
+"""
+
+crime_output = api.model( 'CrimeOut', {
+    'incidents': fields.Float( description='Number of incidents that occurred' )
+} )
+
+crime_groupby_desc = """
+    Optional group_by field:
+    0 - sum
+    1 - mean
+    2 - median
+"""
+
+@api.route( '/crimes/<suburb>' )
+class CrimeSuburb( Resource ):
+    @api.response( 200, 'Sucess' )
+    @api.response( 400, 'Invalid group_by field specified, expected between 0 and 2' )
+    @api.response( 404, 'Suburb not found' )
+    @api.doc( params={ 'group_by': crime_groupby_desc }, required=False )
+    def get( self, suburb ):
+        if suburb not in ci.get_suburb_list( ):
+            return {
+                'message': 'Suburb not found'
+            }, 404
+        
+        group_by = None
+        if 'group_by' in request.args:
+            try:
+                group_by = int( request.args.get( 'group_by' ) )
+                if group_by < 0 or group_by > 2:
+                    return { 
+                        'message': 'Invalid group_by field specified, expected between 0 and 2' 
+                    }, 400
+            except ValueError:
+                return { 
+                    'message': 'Invalid group_by field specified, expected between 0 and 2' 
+                }, 400
+
+        if not group_by:
+            group_by = 0
+        res = ci.get_suburb_total_crimes( suburb, group_by )
+        return { 
+            'incidents': float( res )
+        }, 200
+
+def init( ):
+    global hp, si, ci
+    hp = HousePrices("data/prices.csv")
+    si = SchoolInfo( "data/school.csv" )
+    ci = CrimeInfo( 'data/crime.csv' )
