@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { Button, Form, Divider } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 
+import { DateInput } from 'semantic-ui-calendar-react';
+
 import './ActualApp.css';
 
 import bannerimg from './img/bg2.jpg';
@@ -32,6 +34,10 @@ class ApiForm extends React.Component {
         address: '',
         suburb: '',
         postcode: '',
+        date: '',
+        year: '',
+        month: '',
+        day: '',
         type: '',
         bedrooms: '',
         bathrooms: '',
@@ -42,6 +48,7 @@ class ApiForm extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleChangeSelect = this.handleChangeSelect.bind(this);
+    this.handleChangeDate = this.handleChangeDate.bind(this);
   }
 
   componentDidMount() {
@@ -61,6 +68,16 @@ class ApiForm extends React.Component {
     const { name, value } = data;
     this.setState({ [name]: value });
   }
+
+  handleChangeDate = (event, {name, value}) => {
+      if (this.state.hasOwnProperty(name)) {
+        const day = value.split("-")[0].toString()
+        const mon = value.split("-")[1].toString()
+        const year = value.split("-")[2].toString()
+        this.setState({ 'day': day, 'month': mon, 'year': year, [name]: value});
+      }
+    }
+
   handleSubmit(event) {
     event.preventDefault();
     //const data = new FormData(document.getElementById('apiform'));
@@ -111,6 +128,12 @@ class ApiForm extends React.Component {
               label='Postcode'
               placeholder='2000' />
           </Form.Group>
+            <DateInput
+            label='Date'
+            name="date"
+            placeholder="Date"
+            value={this.state.date}
+            onChange={this.handleChangeDate} />
 
           <Divider />
           <Title3 text='Property Features' />
