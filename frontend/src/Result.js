@@ -23,7 +23,10 @@ const Title2 = ({ text }) => ( <h1 class='App-title2'>{text}</h1> );
 class Result extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { loading: true, data: this.props.location.state };
+    this.state = {
+      loading: true,
+      data: this.props.location.state
+    };
     console.log(this.state);
 
     axios.post('http://localhost:5000/test/predict', this.state.data).then(function(response) {

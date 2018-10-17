@@ -1,5 +1,5 @@
 import React from 'react';
-import { Redirect, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import { Form, Modal, Button, Rail, Icon } from 'semantic-ui-react';
 
