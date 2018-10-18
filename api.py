@@ -142,8 +142,8 @@ house_input = api.model( 'HouseIn', {
     "Bedroom": fields.Integer( description='Number of bedrooms', required=True, min=0 ),
     "Bathroom": fields.Integer( description='Number of bathrooms', required=True, min=0 ),
     "Car": fields.Integer( description='Number of garage/car slots', required=True, min=0 ),
-    "Landsize": fields.Float( description='Land size in m^2', required=True ),
-    "BuildingArea": fields.Float( description='Building Area in m^2', required=True ),
+    # "Landsize": fields.Float( description='Land size in m^2', required=True ),
+    # "BuildingArea": fields.Float( description='Building Area in m^2', required=True ),
     # "Latitude": fields.
     # "Longtitude": fields.
     "year": fields.Integer( required=True ),
@@ -151,9 +151,13 @@ house_input = api.model( 'HouseIn', {
     "day": fields.Integer( required=True )
 } )
 
+house_output = api.model( 'HouseOut', {
+    'float': fields.Float
+} )
+
 @api.route( '/predict_price' )
 class PredictPrice( Resource ):
-    @api.response( 200, 'Success' )
+    @api.response( 200, 'Success', house_output )
     @api.response( 400, 'One of the required fields was not given or specified incorrectly')
     @api.response( 503, 'Mapbox API service unavailable (token usage exhausted possibly)' )
     # @api.response( 404, 'Add')
@@ -168,7 +172,7 @@ class PredictPrice( Resource ):
                 }, 400
 
         js = request.json
-        (t, addr, ber, bar, car, lsz, barea, yr, mn, dy) = [ js[ k ] for k in js.keys( ) ]
+        (t, addr, ber, bar, car, yr, mn, dy) = [ js[ k ] for k in js.keys( ) ]
 
         if t not in [ 'h', 'u', 't' ]:
             return {
@@ -200,8 +204,8 @@ class PredictPrice( Resource ):
                 "Bedroom2": float( ber ),
                 "Bathroom": float( bar ),
                 "Car": float( car ),
-                "Landsize": float( lsz ),
-                "BuildingArea": float( barea ),
+                "Landsize": hp.get_mean_field( suburb, 'Landsize'),
+                "BuildingArea": hp.get_mean_field( suburb, 'BuildingArea'),
                 "Lattitude": lat,
                 "Longtitude": lng,
                 "year": float( yr ),
@@ -220,50 +224,50 @@ house_model = api.model( 'HouseInput', {
     'address': fields.String( description='Address of house to predict', required=True )
 } )
 
-@api.route('/predict')
-class Predict( Resource ):
-    @api.response(200, 'Successfully ')
-    @api.response(400, 'Invalid details (empty fields)')
-    @api.expect( house_model, validate=True )
-    def post(self):
-        arg = request.json
-        #validity check for payload
-        if "address" not in arg.keys():
-            return {"message": "Improper payload format - no proper address"}, 400
+# @api.route('/predict')
+# class Predict( Resource ):
+#     @api.response(200, 'Successfully ')
+#     @api.response(400, 'Invalid details (empty fields)')
+#     @api.expect( house_model, validate=True )
+#     def post(self):
+#         arg = request.json
+#         #validity check for payload
+#         if "address" not in arg.keys():
+#             return {"message": "Improper payload format - no proper address"}, 400
 
-        # initialise a new HousePrices object
-        # predict based on existing address in dataset
-        price = hp.predict_existing( arg[ "address" ] )
-        if price == -1:
-            return {"message": "Address cannot be predicted"}, 400
-        return {"price": price }
+#         # initialise a new HousePrices object
+#         # predict based on existing address in dataset
+#         price = hp.predict_existing( arg[ "address" ] )
+#         if price == -1:
+#             return {"message": "Address cannot be predicted"}, 400
+#         return {"price": price }
 
-heatmap_model = api.model( 'HeatmapIn', {
-    'suburb': fields.String( required=True )
-} )
+# heatmap_model = api.model( 'HeatmapIn', {
+#     'suburb': fields.String( required=True )
+# } )
 
-datapoint = api.model( 'Datapoint', {
-    'long': fields.Float( ),
-    'lat': fields.Float( )
-} )
+# datapoint = api.model( 'Datapoint', {
+#     'long': fields.Float( ),
+#     'lat': fields.Float( )
+# } )
 
-heatmap_out = api.model( 'HeatmapOut', {
-    'min': fields.Float( description='Minimum price of heatmap' ),
-    'max': fields.Float( description='Maximum price of heatmap' ),
-    'results': fields.List( fields.Nested( datapoint ) )
-})
+# heatmap_out = api.model( 'HeatmapOut', {
+#     'min': fields.Float( description='Minimum price of heatmap' ),
+#     'max': fields.Float( description='Maximum price of heatmap' ),
+#     'results': fields.List( fields.Nested( datapoint ) )
+# })
 
-@api.route( '/heatmap/<suburb>' )
-class PriceHeatmap( Resource ):
-    @api.response( 200, 'Success', heatmap_out )
-    # @api.response( 404, 'Suburb not found' )
-    def get( self, suburb ):
-        (mn, mx, results) = hp.heatmap( suburb )
-        return {
-            'min': mn,
-            'max': mx,
-            'results': results
-        }, 200
+# @api.route( '/heatmap/<suburb>' )
+# class PriceHeatmap( Resource ):
+#     @api.response( 200, 'Success', heatmap_out )
+#     # @api.response( 404, 'Suburb not found' )
+#     def get( self, suburb ):
+#         (mn, mx, results) = hp.heatmap( suburb )
+#         return {
+#             'min': mn,
+#             'max': mx,
+#             'results': results
+#         }, 200
 
 """
     -- School
@@ -382,12 +386,56 @@ class School( Resource ):
             "schools": result_lst
         }, 200
 
+search_nested = api.model( 'SearchNested', {
+    'Suburb': fields.String,
+    'Type': fields.String,
+    'Price': fields.Integer,
+    'Postcode': fields.Integer,
+    'Bedroom': fields.Integer,
+    'Bathroom': fields.Integer,
+    'Car': fields.Integer,
+    'Landsize': fields.Integer,
+    'BuildingArea': fields.Integer,
+    'Latitude': fields.Float,
+    'Longitude': fields.Float
+} )
+
+search_output = api.model( 'SearchOutput', {
+    'results': fields.List( fields.Nested( search_nested ) )
+} )
+
+search_input = api.model( 'SearchInput', {
+    'min': fields.Integer( description='Minimum price of search', required=True ),
+    'max': fields.Integer( description='Maximum price of search', required=True ),
+    'suburb': fields.String( description='Suburb of search', required=True )
+} )
+
+@api.route( '/search' )
+class HouseSearch( Resource ):
+    @api.response( 200, 'Success', search_output )
+    @api.expect( search_input, validate=True )
+    def post( self ):
+        args = request.json
+        arg = {
+            'min': args[ 'min' ],
+            'max': args[ 'max' ],
+            'suburb': args[ 'suburb']
+        }
+        return {
+            'results': hp.search( arg )
+        }, 200
+
 """
     -- Crimes
 """
 
+crime_nested = api.model( 'CrimeSingle', {
+    'category': fields.String( description='Category of the crime' ), 
+    'incidents': fields.Integer( description='Number of incidents in the category' )
+} )
+
 crime_output = api.model( 'CrimeOut', {
-    'incidents': fields.Float( description='Number of incidents that occurred' )
+    'results': fields.List( fields.Nested( crime_nested ) )
 } )
 
 crime_groupby_desc = """
@@ -399,7 +447,7 @@ crime_groupby_desc = """
 
 @api.route( '/crimes/<suburb>' )
 class CrimeSuburb( Resource ):
-    @api.response( 200, 'Sucess' )
+    @api.response( 200, 'Sucess', crime_output )
     @api.response( 400, 'Invalid group_by field specified, expected between 0 and 2' )
     @api.response( 404, 'Suburb not found' )
     @api.doc( params={ 'group_by': crime_groupby_desc }, required=False )
@@ -424,9 +472,8 @@ class CrimeSuburb( Resource ):
 
         if not group_by:
             group_by = 0
-        res = ci.get_suburb_total_crimes( suburb, group_by )
         return { 
-            'incidents': float( res )
+            'results': ci.get_suburb_crimes( suburb, group_by )
         }, 200
 
 def init( ):
