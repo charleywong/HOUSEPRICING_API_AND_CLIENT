@@ -49,13 +49,13 @@ class Sell extends Component {
         Address: '',
         Postcode: '',
         date: '',
-        year: '',
-        month: '',
-        day: '',
+        year: 0,
+        month: 0,
+        day: 0,
         Type: '',
-        Bedroom: '',
-        Bathroom: '',
-        Car: '',
+        Bedroom: 0,
+        Bathroom: 0,
+        Car: 0,
         Landsize: '',
         Buildingarea: ''};
 
@@ -85,9 +85,9 @@ class Sell extends Component {
 
   handleChangeDate = (event, {name, value}) => {
       if (this.state.hasOwnProperty(name)) {
-        const day = value.split("-")[0].toString()
-        const mon = value.split("-")[1].toString()
-        const year = value.split("-")[2].toString()
+        const day = parseInt(value.split("-")[0].toString(),10)
+        const mon = parseInt(value.split("-")[1].toString(), 10)
+        const year = parseInt(value.split("-")[2].toString(), 10)
 
         this.setState({ 'day': day, 'month': mon, 'year': year, [name]: value});
       }
@@ -101,7 +101,7 @@ class Sell extends Component {
         this.setState({ predict: response.data });
         console.log(this.state.predict)
       }
-    );
+    ).catch(error => console.log(error));
     // history.push('/sell-result', this.state)
   }
   render () {
@@ -128,7 +128,7 @@ class Sell extends Component {
             label='Postcode'
             placeholder='2000' />
         </Form.Group>
-          <DateInput
+          <DateInput required
           label='Date'
           name="date"
           placeholder="Date"
@@ -137,24 +137,24 @@ class Sell extends Component {
 
         <Divider />
         <Title4 text='Property Features' />
-        <Form.Select label='Type'
+        <Form.Select required label='Type'
           name='Type'
           options={optionsType}
           value={this.state.type}
           onChange={this.handleChangeSelect}
           placeholder='Type of Property' />
         <Form.Group widths='equal'>
-          <Form.Select label='Bedrooms'
+          <Form.Select required label='Bedrooms'
             name='Bedroom'
             onChange={this.handleChangeSelect}
             options={optionsNums}
             placeholder='Number of Bedrooms'/>
-          <Form.Select label='Bathrooms'
+          <Form.Select required label='Bathrooms'
             name='Bathroom'
             onChange={this.handleChangeSelect}
             options={optionsNums}
             placeholder='Number of Bathrooms'/>
-          <Form.Select label='Car Spaces'
+          <Form.Select required label='Car Spaces'
             name='Car'
             onChange={this.handleChangeSelect}
             options={optionsNums}

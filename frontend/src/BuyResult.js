@@ -25,9 +25,6 @@ class BuyResult extends React.Component {
     super(props);
     this.state = {
       data: this.props.location.state,
-      predict: [],
-      school: [],
-      crime: []
     };
     let predict;
     console.log(this.state);
@@ -37,11 +34,13 @@ class BuyResult extends React.Component {
     //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     // CALLS TO API HERE
     //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    axios.post('http://localhost:5000/test/predict', this.state.data).then(
+    console.log('hello');
+    axios.post('http://127.0.0.1:5000/test/predict_price', {'Address': '44 Abbotsford St, Abbotsford'}).then(
       response => {
-        this.setState({ predict: response.data });
+        // this.setState({ predict: response.data });
+        console.log(response);
       }
-    );
+    ).catch(error => console.log(error));
   }
 
   /*** CHARTS AND DISPLAY DATA STUFF ***/
