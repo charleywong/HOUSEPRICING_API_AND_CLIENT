@@ -86,7 +86,7 @@ class HousePrices:
 
         # Remove any rows with NaN values
         df = df_raw.dropna(how="any", axis=0).copy()
-
+        self.df = df.copy( )
         # Set year,month,day individual columns and remove the date column.
         (df["year"], df["month"], df["day"]) = (
             df.Date.dt.year,
@@ -155,34 +155,67 @@ class HousePrices:
         logPrice = self.mdl.predict([series])
         return math.e ** logPrice[0]
 
-    def predict_existing( self, address ):
-        s = self.df_raw[ self.df_raw[ 'Address' ] == address ]
-        zz = { }
-        for arg in S_ARGS:
-            if arg == 'year':
-                zz[ arg ] = float( pd.to_datetime( s[ 'Date' ].values[ 0 ] ).year )
-                continue
-            elif arg == 'month':
-                zz[ arg ] = float( pd.to_datetime( s[ 'Date' ].values[ 0 ] ).month )
-                continue
-            elif arg == 'day':
-                zz[ arg ] = float( pd.to_datetime( s[ 'Date' ].values[ 0 ] ).day )
-                continue
-            zz[ arg ] = s[ arg ].values[ 0 ]
-        return self.predict( zz )
+    # This was only created for demo purposes
+    # def predict_existing( self, address ):
+    #     s = self.df_raw[ self.df_raw[ 'Address' ] == address ]
+    #     zz = { }
+    #     for arg in S_ARGS:
+    #         if arg == 'year':
+    #             zz[ arg ] = float( pd.to_datetime( s[ 'Date' ].values[ 0 ] ).year )
+    #             continue
+    #         elif arg == 'month':
+    #             zz[ arg ] = float( pd.to_datetime( s[ 'Date' ].values[ 0 ] ).month )
+    #             continue
+    #         elif arg == 'day':
+    #             zz[ arg ] = float( pd.to_datetime( s[ 'Date' ].values[ 0 ] ).day )
+    #             continue
+    #         zz[ arg ] = s[ arg ].values[ 0 ]
+    #     return self.predict( zz )
 
-    def heatmap( self, suburb ):
-        df = self.df_raw.dropna( ).copy( )
-        mn = df[ df[ 'Suburb' ] == suburb ][ 'Price' ].min( )
-        mx = df[ df[ 'Suburb' ] == suburb ][ 'Price' ].min( )
-        res = [ ]
-        for row in df.values:
-            res.append( {
-                'price': row[ 4 ],
-                'lng': row[ 18 ],
-                'lat': row[ 17 ]
-            } )
-        return (mn, mx, res)
+    def search( self, args ):
+        df = self.df.copy( )
+        df.rename(
+            columns={
+                "Lattitude": "Latitude",
+                "Longtitude": "Longitude",
+                "Bedroom2": "Bedroom"
+            },
+            inplace=True,
+        )
+        vals = [ args[ key ] for key in args ]
+        print( 'Price > {} and Price < {} and Suburb == "{}"'.format( *vals ) )
+        res = df.query( 'Price > {} and Price < {} and Suburb == "{}"'.format( *vals ) )
+
+        results = [ ]
+        for row in res.values:
+            js = { }
+            for idx, col in enumerate( res.columns ):
+                if col == 'Date':
+                    continue
+                js[ col ] = row[ idx ]
+            results.append( js )
+        return results
+
+    def get_mean_field( self, suburb, field ):
+        if field not in self.df.columns:
+            return None
+        
+        return self.df.query( 'Suburb == "{}"'.format( suburb ) ).groupby( ['Suburb'] )[ field ].mean( ).values[ 0 ]
+        
+    # def heatmap( self, suburb ):
+    #     df = self.df_raw.dropna( ).copy( )
+    #     mn = df[ df[ 'Suburb' ] == suburb ][ 'Price' ].min( )
+    #     mx = df[ df[ 'Suburb' ] == suburb ][ 'Price' ].min( )
+    #     res = [ ]
+    #     for row in df.values:
+    #         res.append( {
+    #             'price': row[ 4 ],
+    #             'lng': row[ 18 ],
+    #             'lat': row[ 17 ]
+    #         } )
+    #     return (mn, mx, res)
+
+    
 
 # Example of usage!
 if __name__ == "__main__":
@@ -205,5 +238,15 @@ if __name__ == "__main__":
         "day": 11.0,
     }
     print(hp.predict(zz))
-    print(hp.predict_existing('48 Abbotsford St'))
-    print(hp.heatmap('Abbotsford'))
+    # print(hp.predict_existing('48 Abbotsford St'))
+    # print(hp.heatmap('Abbotsford'))
+
+    zz = {
+        "Min": 10000,
+        "Max": 600000,
+        "Suburb": 'Melbourne'
+    }
+    print(hp.search(zz))
+
+    print(hp.get_mean_field( 'Melbourne', 'Landsize'))
+    print(hp.get_mean_field( 'Melbourne', 'BuildingArea'))

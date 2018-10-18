@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-
+import re
 """
 Description:
     Interface for obtaining crime information based on dataset
@@ -11,7 +11,6 @@ Source:
 """
 
 GROUP_BY = ["sum", "mean", "median"]
-
 
 class CrimeInfo:
     def __init__(self, csv_file):
@@ -33,28 +32,37 @@ class CrimeInfo:
         )
         # convert to incidents to int
         dff["Incidents"] = pd.to_numeric(dff["Incidents"].str.replace(",", ""))
-
+        # remove 'A', 'B', 'C' in offence division
+        dff[ 'Offence Division' ] = dff[ 'Offence Division' ].apply( lambda x: re.sub( r'^[A-Z]\s', r'', x ) )
         self.df = dff
 
     def get_suburb_list(self):
         return list(self.df["Suburb"].unique())
 
     # gb_type accepts 'sum, mean, median'
-    def get_suburb_total_crimes(self, suburb, gb_type=0):
+    def get_suburb_crimes(self, suburb, gb_type=0):
         if gb_type < 0 or gb_type > 2:
             return None
 
-        gb = self.df[self.df["Suburb"] == suburb].groupby("Suburb")["Incidents"]
-
+        gb = self.df[self.df["Suburb"] == suburb].groupby(['Suburb', 'Offence Division'])["Incidents"]
+        gb_cont = None
         if gb_type == 0:
-            return gb.sum().values[0]
+            gb_cont = gb.sum()
         elif gb_type == 1:
-            return gb.mean().values[0]
+            gb_cont = gb.mean()
         elif gb_type == 2:
-            return gb.median().values[0]
+            gb_cont = gb.median()
+
+        results = []
+        for row in gb_cont.reset_index( ).values:
+            results.append( {
+                'category': row[ 1 ],
+                'incidents': row[ 2 ]
+            })
+        return results
 
 
 if __name__ == "__main__":
     ci = CrimeInfo( "data/crime.csv" )
 
-    print(ci.get_suburb_total_crimes("Melbourne"))
+    print(ci.get_suburb_crimes("Melbourne"))
