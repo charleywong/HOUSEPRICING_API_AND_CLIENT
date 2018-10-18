@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { Button, Form, Input, Divider } from 'semantic-ui-react';
-import { Redirect } from 'react-router';
+import { Button, Form, Divider } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
+
+import { DateInput } from 'semantic-ui-calendar-react';
 
 import './ActualApp.css';
 
@@ -30,19 +31,24 @@ class ApiForm extends React.Component {
     super(props);
     this.location = this.props.location;
     this.state = {
+        address: '',
         suburb: '',
         postcode: '',
-        latitude: '',
-        longitude: '',
+        date: '',
+        year: '',
+        month: '',
+        day: '',
         type: '',
         bedrooms: '',
         bathrooms: '',
         carslots: '',
         landsize: '',
         buildingarea: ''};
+
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleChangeSelect = this.handleChangeSelect.bind(this);
+    this.handleChangeDate = this.handleChangeDate.bind(this);
   }
 
   componentDidMount() {
@@ -53,8 +59,6 @@ class ApiForm extends React.Component {
     }
   }
 
-
-
   handleChange(event) {
     const { name, value } = event.target;
     this.setState({ [name]: value });
@@ -64,6 +68,16 @@ class ApiForm extends React.Component {
     const { name, value } = data;
     this.setState({ [name]: value });
   }
+
+  handleChangeDate = (event, {name, value}) => {
+      if (this.state.hasOwnProperty(name)) {
+        const day = value.split("-")[0].toString()
+        const mon = value.split("-")[1].toString()
+        const year = value.split("-")[2].toString()
+        this.setState({ 'day': day, 'month': mon, 'year': year, [name]: value});
+      }
+    }
+
   handleSubmit(event) {
     event.preventDefault();
     //const data = new FormData(document.getElementById('apiform'));
@@ -81,7 +95,7 @@ class ApiForm extends React.Component {
     //   // console.log(response)
     // });
     // console.log(this.state)
-    history.push('/result', this.state.data)
+    history.push('/result', this.state)
 
   }
   render() {
@@ -93,37 +107,34 @@ class ApiForm extends React.Component {
         class='ui form'
         style={{marginBottom:60}}>
 
-        <Title3 text='Location' />
+        <Title3 text='Location & Date' />
           <Form.Group widths='equal'>
-            <Form.Input required fluid
+            <Form.Input required fluid width={9}
+              name='address'
+              value={this.state.address}
+              onChange={this.handleChange}
+              label='Address'
+              placeholder='Sydney' />
+            <Form.Input fluid width={4}
               name='suburb'
               value={this.state.suburb}
               onChange={this.handleChange}
               label='Suburb'
               placeholder='Sydney' />
-            <Form.Input required fluid
+            <Form.Input fluid width={3}
               name='postcode'
               value={this.state.postcode}
               onChange={this.handleChange}
               label='Postcode'
               placeholder='2000' />
           </Form.Group>
-          <Form.Group widths='equal'>
-            <Form.Input fluid
-              name='latitude'
-              id='latitude'
-              value={this.state.latitude}
-              onChange={this.handleChange}
-              label='Latitude'
-              placeholder='' />
-            <Form.Input fluid
-              name='longitude'
-              id='longitude'
-              value={this.state.longitude}
-              onChange={this.handleChange}
-              label='Longitude'
-              placeholder='' />
-          </Form.Group>
+            <DateInput
+            label='Date'
+            name="date"
+            placeholder="Date"
+            value={this.state.date}
+            onChange={this.handleChangeDate} />
+
           <Divider />
           <Title3 text='Property Features' />
           <Form.Select label='Type'
@@ -178,10 +189,28 @@ class ApiForm extends React.Component {
   }
 };
 
+// LAT AND LONG FORM FIELDS
+// <Form.Group widths='equal'>
+//   <Form.Input fluid
+//     name='latitude'
+//     id='latitude'
+//     value={this.state.latitude}
+//     onChange={this.handleChange}
+//     label='Latitude'
+//     placeholder='' />
+//   <Form.Input fluid
+//     name='longitude'
+//     id='longitude'
+//     value={this.state.longitude}
+//     onChange={this.handleChange}
+//     label='Longitude'
+//     placeholder='' />
+// </Form.Group>
+
 const optionsType = [
-  { key: 'H', text: 'House', value:'house'},
-  { key: 'U', text: 'Unit', value:'unit'},
-  { key: 'T', text: 'Townhouse', value:'townhouse'}
+  { key: 'H', text: 'House', value:'h'},
+  { key: 'U', text: 'Unit', value:'u'},
+  { key: 'T', text: 'Townhouse', value:'t'}
 ]
 
 const optionsNums = [
@@ -196,25 +225,6 @@ const optionsNums = [
   {key: '9', text: '9', value:'9'},
   {key: '10', text: '10', value:'10'},
 ]
-
-/*** address + city fields
-<div class='field'>
-  <label>Street Address</label>
-    <Input
-      onChange={this.handleChange}
-      name='address' id='address'
-      value={this.state.address}
-      placeholder='e.g. 1 Two Street'/>
-</div>
-<div class='field'>
-  <label>City/Town/Suburb</label>
-    <Input
-      onChange={this.handleChange}
-      name='city' id='city'
-      value={this.state.city}
-      placeholder='e.g. New York City'/>
-</div>
-***/
 
 class ActualApp extends Component {
   render() {

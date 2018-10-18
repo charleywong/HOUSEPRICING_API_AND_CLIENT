@@ -24,28 +24,34 @@ class Result extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      loading: true,
-      data: this.props.location.state
+      data: this.props.location.state,
+      predict: [],
+      school: [],
+      crime: []
     };
+    let predict;
     console.log(this.state);
+  };
 
-    axios.post('http://localhost:5000/test/predict', this.state.data).then(function(response) {
-      // console.log(response)
-       console.log(response.data)
-    });
+  componentWillMount() {
+    //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    // CALLS TO API HERE
+    //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    axios.post('http://localhost:5000/test/predict', this.state.data).then(
+      response => {
+        this.setState({ predict: response.data });
+      }
+    );
   }
+  // unction(response) {
+  //   const predictRes = response.data;
+  //   console.log(response.data);
+    // axios.post('http://localhost:5000/test/')
 
-  /*** loader ***/
-  componentDidMount() {
-    this.setState({loading:false});
-  }
   /*** CHARTS AND DISPLAY DATA STUFF ***/
 
 
   render() {
-    if (this.state.loading) {
-      return <div><Icon loading name='certificate' /></div>;
-    }
     const ModalJSON = () => (
       <Modal trigger={<button class='ui animated button'>
         <div class='visible content'>View JSON</div>
