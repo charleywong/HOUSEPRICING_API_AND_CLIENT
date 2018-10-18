@@ -201,7 +201,9 @@ class HousePrices:
             return None
         
         return self.df.query( 'Suburb == "{}"'.format( suburb ) ).groupby( ['Suburb'] )[ field ].mean( ).values[ 0 ]
-        
+    
+    def get_suburb_list( self ):
+        return list( self.df[ 'Suburb' ].unique( ) )
     # def heatmap( self, suburb ):
     #     df = self.df_raw.dropna( ).copy( )
     #     mn = df[ df[ 'Suburb' ] == suburb ][ 'Price' ].min( )

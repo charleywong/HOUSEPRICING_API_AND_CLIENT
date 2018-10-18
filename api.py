@@ -159,6 +159,7 @@ house_output = api.model( 'HouseOut', {
 class PredictPrice( Resource ):
     @api.response( 200, 'Success', house_output )
     @api.response( 400, 'One of the required fields was not given or specified incorrectly')
+    @api.response( 404, 'Address location not covered by dataset' )
     @api.response( 503, 'Mapbox API service unavailable (token usage exhausted possibly)' )
     # @api.response( 404, 'Add')
 
@@ -196,6 +197,11 @@ class PredictPrice( Resource ):
             if 'postcode' in loc[ 'id' ]:
                 postcode = float( loc[ 'text' ] )
 
+        if suburb not in hp.get_suburb_list( ):
+            print( "Address: {} resulted in suburb {} that is not in dataset".format( addr, suburb ) )
+            return {
+                'message': 'Address location not covered by dataset'
+            }, 404
         try:
             in_dict = {
                 "Suburb": suburb,
