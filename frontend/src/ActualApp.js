@@ -3,13 +3,17 @@ import { Button, Form, Divider, Tab } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import { DateInput } from 'semantic-ui-calendar-react';
 import createHistory from "history/createBrowserHistory";
+import axios from 'axios';
+
 
 import './ActualApp.css';
 import bannerimg from './img/bg2.jpg';
+import Sell from './Sell.js';
 
 const history = createHistory({forceRefresh:true})
 const Title2 = ({ text }) => ( <h1 class='App-title2'>{text}</h1> );
 const Title3 = ({ text }) => ( <h2 class='App-title3'>{text}</h2> );
+const Title4 = ({ text }) => ( <h3 class='App-title3'>{text}</h3> );
 const bannerStyle = {
   height:300,
   backgroundImage: 'url(' + bannerimg + ')',
@@ -93,39 +97,18 @@ class ApiForm extends React.Component {
 /******************************************************************************/
 /******************************************************************************/
 /******************************************************************************/
-class Sell extends Component {
+class Buy extends Component {
   constructor(props) {
-    super(props);
-    this.location = this.props.location;
+    super(props)
     this.state = {
-        address: '',
-        suburb: '',
-        postcode: '',
-        date: '',
-        year: '',
-        month: '',
-        day: '',
-        type: '',
-        bedrooms: '',
-        bathrooms: '',
-        carslots: '',
-        landsize: '',
-        buildingarea: ''};
-
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleChange = this.handleChange.bind(this);
-    this.handleChangeSelect = this.handleChangeSelect.bind(this);
-    this.handleChangeDate = this.handleChangeDate.bind(this);
-  }
-
-  componentDidMount() {
-    console.log(localStorage.getItem('session'));
-    if (localStorage.getItem('session') === null) {
-      alert("You are unable to use this API without signing in!");
-      this.setState({loggedIn: false});
+      suburb: '',
+      bedrooms: '',
+      bathrooms: ''
     }
+    this.handleSubmit = this.handleSubmit.bind(this)
+    this.handleChange = this.handleChange.bind(this)
+    this.handleChangeSelect = this.handleChangeSelect.bind(this)
   }
-
   handleChange(event) {
     const { name, value } = event.target;
     this.setState({ [name]: value });
@@ -136,129 +119,44 @@ class Sell extends Component {
     this.setState({ [name]: value });
   }
 
-  handleChangeDate = (event, {name, value}) => {
-      if (this.state.hasOwnProperty(name)) {
-        const day = value.split("-")[0].toString()
-        const mon = value.split("-")[1].toString()
-        const year = value.split("-")[2].toString()
-        this.setState({ 'day': day, 'month': mon, 'year': year, [name]: value});
-      }
-    }
-
   handleSubmit(event) {
     event.preventDefault();
-    //const data = new FormData(document.getElementById('apiform'));
-
-    // note that because this request is async, when handling response, we should try to use callback functions such as console.log
-    // rather than functions like alert() which is also async
-    // there is also a bug with this where if your resulting data is too large, it'll throw an except.
-    // googling, it says a way around this is to not use the history thing and use
-    // sessionStorage and/or localStorage:
-    // https://stackoverflow.com/questions/24425885/failed-to-execute-pushstate-on-history-error-when-using-window-history-pushs
-    // please also note that we need to replace the current link with localhost:3001/....
-    // axios.post('http://localhost:5000/test/predict', this.state.data).then(function(response) {
-    //   // console.log(response)
-    //   history.push('/result', response.data)
-    //   // console.log(response)
-    // });
-    // console.log(this.state)
-    history.push('/result', this.state)
-
+    history.push('/buy-result', this.state)
   }
-  render () {
-    return (
-      <div>
-      <Form name='apiform' id='apiform'
-        onSubmit={this.handleSubmit}
-        class='ui form'>
-      <Title3 text='Location & Date' />
-        <Form.Group widths='equal'>
-          <Form.Input required fluid width={9}
-            name='address'
-            value={this.state.address}
-            onChange={this.handleChange}
-            label='Address'
-            placeholder='Sydney' />
-          <Form.Input fluid width={4}
-            name='suburb'
-            value={this.state.suburb}
-            onChange={this.handleChange}
-            label='Suburb'
-            placeholder='Sydney' />
-          <Form.Input fluid width={3}
-            name='postcode'
-            value={this.state.postcode}
-            onChange={this.handleChange}
-            label='Postcode'
-            placeholder='2000' />
-        </Form.Group>
-          <DateInput
-          label='Date'
-          name="date"
-          placeholder="Date"
-          value={this.state.date}
-          onChange={this.handleChangeDate} />
-
-        <Divider />
-        <Title3 text='Property Features' />
-        <Form.Select label='Type'
-          name='type'
-          options={optionsType}
-          value={this.state.type}
-          onChange={this.handleChangeSelect}
-          placeholder='Type of Property' />
-        <Form.Group widths='equal'>
-          <Form.Select label='Bedrooms'
-            name='bedrooms'
-            onChange={this.handleChangeSelect}
-            options={optionsNums}
-            placeholder='Number of Bedrooms'/>
-          <Form.Select label='Bathrooms'
-            name='bathrooms'
-            onChange={this.handleChangeSelect}
-            options={optionsNums}
-            placeholder='Number of Bathrooms'/>
-          <Form.Select label='Car Spaces'
-            name='carslots'
-            onChange={this.handleChangeSelect}
-            options={optionsNums}
-            placeholder='Number of Car Spaces'/>
-        </Form.Group>
-        <Form.Group widths='equal'>
-          <Form.Input fluid
-            name='landsize'
-            onChange={this.handleChange}
-            value={this.state.landsize}
-            label='Landsize (m^2)'
-            placeholder='399'/>
-          <Form.Input fluid
-            name='buildingarea'
-            onChange={this.handleChange}
-            value={this.state.buildingarea}
-            label='Building Area (m^2)'
-            placeholder='399' />
-        </Form.Group>
-      <Divider />
-
-      <Button
-        type='submit'
-        content='Submit'
-        icon='right arrow'
-        labelPosition='left'
-        role='button'>
-      </Button>
-      </Form>
-
-      </div>
-    );
-  }
-}
-/******************************************************************************/
-class Buy extends Component {
   render() {
     return (
       <div>
-      Buy
+      <Title3 text='Browse Properties' />
+      <p class='grey-text'>View a map displaying properties with the following attributes</p>
+      <Form name='sellform' id='sellform'
+        onSubmit={this.handleSubmit}
+        class='ui form'>
+        <Form.Input
+          label='Suburb'
+          name='suburb'
+          value={this.state.suburb}
+          onChange={this.handleChange}
+          placeholder='Name of suburb'/>
+        <Form.Group>
+        <Form.Select label='Bedrooms'
+          name='bedrooms'
+          onChange={this.handleChangeSelect}
+          options={optionsNums}
+          placeholder='Number of Bedrooms'/>
+        <Form.Select label='Bathrooms'
+          name='bathrooms'
+          onChange={this.handleChangeSelect}
+          options={optionsNums}
+          placeholder='Number of Bathrooms'/>
+        </Form.Group>
+        <Button
+          type='submit'
+          content='Submit'
+          icon='right arrow'
+          labelPosition='left'
+          role='button'>
+        </Button>
+      </Form>
       </div>
     );
   }

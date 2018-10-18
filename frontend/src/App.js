@@ -9,7 +9,8 @@ import HomeBody from './HomeBody.js';
 import Docs from './Docs.js';
 import Footer from './Footer.js';
 
-import Result from './Result.js';
+import SellResult from './SellResult.js';
+import BuyResult from './BuyResult.js'
 
 
 class App extends Component {
@@ -21,7 +22,8 @@ class App extends Component {
         <Route exact path='/' component={HomeBody} />
         <Route path='/api' component={ActualApp} />
         <Route path='/docs' component={Docs} />
-        <Route path='/result' component={Result} />
+        <Route path='/sell-result' component={SellResult} />
+        <Route path='/buy-result' component={BuyResult} />
         <Footer />
       </div>
       </BrowserRouter>
