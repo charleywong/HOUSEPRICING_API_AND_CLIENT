@@ -173,7 +173,16 @@ class PredictPrice( Resource ):
                 }, 400
 
         js = request.json
-        (t, addr, ber, bar, car, yr, mn, dy) = [ js[ k ] for k in js.keys( ) ]
+        (t, addr, ber, bar, car, yr, mn, dy) = (
+            js[ 'Type' ],
+            js[ 'Address' ],
+            js[ 'Bedroom' ],
+            js[ 'Bathroom' ],
+            js[ 'Car' ],
+            js[ 'year' ],
+            js[ 'month' ],
+            js[ 'day' ]
+        )
 
         if t not in [ 'h', 'u', 't' ]:
             return {
