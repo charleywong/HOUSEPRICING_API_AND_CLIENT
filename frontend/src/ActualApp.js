@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Form, Divider, Tab } from 'semantic-ui-react';
+import { Button, Form, Divider, Tab, Segment, Label } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import { DateInput } from 'semantic-ui-calendar-react';
 import createHistory from "history/createBrowserHistory";
@@ -55,13 +55,8 @@ class ActualApp extends Component {
       <div>
         <Banner />
         <div class='ui main text container'>
-          <Title2 text='PROPERTY VALUATION API'/>
-          <Title3 text='Overview' />
-          <h4>User Inputs</h4>
-          <p>Users are required to enter as much information about the target property as possible in order to produce accurate predictions about the housing market. Fields are as follows:</p>
-          <h4>Output</h4>
-          <p>The service will run your data through our machine learning model to give an accurate property valuation.</p>
-          <Link to='/docs'><button class='ui button'>View detailed usage instructions</button></Link><br /><br /><br />
+          <Title2 text='Property Valuation API'/>
+          <Link to='/docs'><button style={{marginBottom:20}} class='ui button'>View Documentation</button></Link>
           <ApiForm location={this.props.location}/>
 
         </div>
@@ -86,9 +81,11 @@ class ApiForm extends React.Component {
     ]
 
     return(
-      <div style={{marginBottom:50}}>
+      <Segment raised style={{marginBottom:50}}>
+        <Label as='a' color='black' ribbon>Client</Label><br /><br />
+        <p className='grey-text'>Select <strong><u>Buy Property</u></strong> to browse homes within an area and budget, <strong><u>Sell Property</u></strong> for an accurate valuation of property or <strong><u>Renovate Property</u></strong> to see how much value there is in renovating your home!  </p>
         <Tab menu={{ secondary: true, pointing: true, attached:true }} panes={panes} />
-      </div>
+      </Segment>
     );
   }
 };

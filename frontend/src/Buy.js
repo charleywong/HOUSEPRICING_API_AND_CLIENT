@@ -12,16 +12,16 @@ const Title3 = ({ text }) => ( <h2 class='App-title3'>{text}</h2> );
 const Title4 = ({ text }) => ( <h3 class='App-title3'>{text}</h3> );
 
 const optionsNums = [
-  {key: '1', text: '1', value:'1'},
-  {key: '2', text: '2', value:'2'},
-  {key: '3', text: '3', value:'3'},
-  {key: '4', text: '4', value:'4'},
-  {key: '5', text: '5', value:'5'},
-  {key: '6', text: '6', value:'6'},
-  {key: '7', text: '7', value:'7'},
-  {key: '8', text: '8', value:'8'},
-  {key: '9', text: '9', value:'9'},
-  {key: '10', text: '10', value:'10'},
+  {key: '1', text: '1', value:1},
+  {key: '2', text: '2', value:2},
+  {key: '3', text: '3', value:3},
+  {key: '4', text: '4', value:4},
+  {key: '5', text: '5', value:5},
+  {key: '6', text: '6', value:6},
+  {key: '7', text: '7', value:7},
+  {key: '8', text: '8', value:8},
+  {key: '9', text: '9', value:9},
+  {key: '10', text: '10', value:10},
 ]
 
 class Buy extends Component {
@@ -29,8 +29,10 @@ class Buy extends Component {
     super(props)
     this.state = {
       suburb: '',
-      bedrooms: '',
-      bathrooms: '',
+      min: 0,
+      max: 0,
+      bedrooms: 0,
+      bathrooms: 0,
       priceRange: {
         min: 400000,
         max: 1200000
@@ -52,6 +54,10 @@ class Buy extends Component {
 
   handleSubmit(event) {
     event.preventDefault();
+    const mintmp = this.state.priceRange.min;
+    const maxtmp = this.state.priceRange.max;
+    this.setState({ min: {mintmp}, max: {maxtmp} })
+    console.log(this.state)
     history.push('/buy-result', this.state)
   }
   render() {

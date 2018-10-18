@@ -36,10 +36,10 @@ user_model = api.model('User Register and Login Data', {
 'password': fields.String
 })
 
-token_model = { 
+token_model = {
   "name": None,
   "token": None
-} 
+}
 
 
 host='mongodb://gontri:Lolcats123@ds153552.mlab.com:53552/ass2'
@@ -61,7 +61,7 @@ class register(Resource):
     @api.response(201, 'Successfully created new user')
     @api.response(400, 'Invalid login details (empty fields) or user already found')
     def post(self):
-        
+
         arg = request.json
 
         #validity check for payload
@@ -85,7 +85,7 @@ class register(Resource):
         new_data["name"] = arg["name"]
         new_data["password"] = arg["password"]
 
-        
+
         collection.insert_one(json.loads(json_util.dumps(new_data)))
 
         return { 'message': 'created' }, 201
@@ -98,9 +98,9 @@ class login(Resource):
     @api.response(404, 'User not found.')
     @api.response(400, 'Invalid login details (empty fields)')
     def post(self):
-       
+
         arg = request.json
-        
+
         if "name" not in arg.keys():
             return {"message": "Improper payload format - no proper username"}, 400
 
@@ -116,7 +116,7 @@ class login(Resource):
         for document in collection.find():
             if document["name"] == arg["name"]:
                 if document["password"] == arg["password"]:
-                    #make a token with a date that is valid and send it 
+                    #make a token with a date that is valid and send it
                     token = token_model
                     token["name"] = arg["name"]
                     token["token"] = "token-"+arg["name"]
@@ -195,7 +195,7 @@ class PredictPrice( Resource ):
             return {
                 'message': 'Mapbox API is rejecting requests'
             }, 503
-        
+
         result = res.json( )[ 'features' ][ 0 ]
         address = result[ 'address' ] + result[ 'text' ]
         (lng,lat) = result[ 'geometry'][ 'coordinates' ]
@@ -298,10 +298,10 @@ school_output = api.model( 'SchoolOut', {
 } )
 
 school_sort_desc = """
-Optional sort field: 
-    0 - number of students, 
-    1 - completion %, 
-    2 - median, 
+Optional sort field:
+    0 - number of students,
+    1 - completion %,
+    2 - median,
     3 - over 40%
 """
 
@@ -316,8 +316,8 @@ class Schools( Resource ):
         if 'ascending' in request.args:
             asc = request.args.get( 'ascending' )
             if 'true' not in asc and 'false' not in asc:
-                return { 
-                    'message': 'Invalid ascending field specified, expected true or false' 
+                return {
+                    'message': 'Invalid ascending field specified, expected true or false'
                 }, 400
             elif asc == 'true':
                 ascending = True
@@ -329,12 +329,12 @@ class Schools( Resource ):
             try:
                 sort_by = int( request.args.get( 'sort_by' ) )
                 if sort_by < 0 or sort_by > 3:
-                    return { 
-                        'message': 'Invalid sort_by field specified, expected between 0 and 3' 
+                    return {
+                        'message': 'Invalid sort_by field specified, expected between 0 and 3'
                     }, 400
             except ValueError:
-                return { 
-                    'message': 'Invalid sort_by field specified, expected between 0 and 3' 
+                return {
+                    'message': 'Invalid sort_by field specified, expected between 0 and 3'
                 }, 400
 
         result = si.search( sort=sort_by, asc=ascending )
@@ -367,8 +367,8 @@ class School( Resource ):
         if 'ascending' in request.args:
             asc = request.args.get( 'ascending' )
             if 'true' not in asc and 'false' not in asc:
-                return { 
-                    'message': 'Invalid ascending field specified, expected true or false' 
+                return {
+                    'message': 'Invalid ascending field specified, expected true or false'
                 }, 400
             elif asc == 'true':
                 ascending = True
@@ -380,12 +380,12 @@ class School( Resource ):
             try:
                 sort_by = int( request.args.get( 'sort_by' ) )
                 if sort_by < 0 or sort_by > 3:
-                    return { 
-                        'message': 'Invalid sort_by field specified, expected between 0 and 3' 
+                    return {
+                        'message': 'Invalid sort_by field specified, expected between 0 and 3'
                     }, 400
             except ValueError:
-                return { 
-                    'message': 'Invalid sort_by field specified, expected between 0 and 3' 
+                return {
+                    'message': 'Invalid sort_by field specified, expected between 0 and 3'
                 }, 400
 
         result = si.search( suburb, sort=sort_by )
@@ -445,7 +445,7 @@ class HouseSearch( Resource ):
 """
 
 crime_nested = api.model( 'CrimeSingle', {
-    'category': fields.String( description='Category of the crime' ), 
+    'category': fields.String( description='Category of the crime' ),
     'incidents': fields.Integer( description='Number of incidents in the category' )
 } )
 
@@ -471,23 +471,23 @@ class CrimeSuburb( Resource ):
             return {
                 'message': 'Suburb not found'
             }, 404
-        
+
         group_by = None
         if 'group_by' in request.args:
             try:
                 group_by = int( request.args.get( 'group_by' ) )
                 if group_by < 0 or group_by > 2:
-                    return { 
-                        'message': 'Invalid group_by field specified, expected between 0 and 2' 
+                    return {
+                        'message': 'Invalid group_by field specified, expected between 0 and 2'
                     }, 400
             except ValueError:
-                return { 
-                    'message': 'Invalid group_by field specified, expected between 0 and 2' 
+                return {
+                    'message': 'Invalid group_by field specified, expected between 0 and 2'
                 }, 400
 
         if not group_by:
             group_by = 0
-        return { 
+        return {
             'results': ci.get_suburb_crimes( suburb, group_by )
         }, 200
 

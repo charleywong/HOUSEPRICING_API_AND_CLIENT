@@ -33,7 +33,7 @@ const optionsNums = [
 const PricePredictionResult = ({ price }) => (
   <div>
   <Message>
-  <Title3 text='We value your property at ...' />
+  <Title3 text='We have valued your property at ...' />
   <h1>${price} AUD</h1>
   </Message>
 
