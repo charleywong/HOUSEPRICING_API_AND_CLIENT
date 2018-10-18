@@ -9,6 +9,7 @@ import axios from 'axios';
 import './ActualApp.css';
 import bannerimg from './img/bg2.jpg';
 import Sell from './Sell.js';
+import Buy from './Buy.js';
 
 const history = createHistory({forceRefresh:true})
 const Title2 = ({ text }) => ( <h1 class='App-title2'>{text}</h1> );
@@ -97,70 +98,6 @@ class ApiForm extends React.Component {
 /******************************************************************************/
 /******************************************************************************/
 /******************************************************************************/
-class Buy extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      suburb: '',
-      bedrooms: '',
-      bathrooms: ''
-    }
-    this.handleSubmit = this.handleSubmit.bind(this)
-    this.handleChange = this.handleChange.bind(this)
-    this.handleChangeSelect = this.handleChangeSelect.bind(this)
-  }
-  handleChange(event) {
-    const { name, value } = event.target;
-    this.setState({ [name]: value });
-  }
-
-  handleChangeSelect(event, data) {
-    const { name, value } = data;
-    this.setState({ [name]: value });
-  }
-
-  handleSubmit(event) {
-    event.preventDefault();
-    history.push('/buy-result', this.state)
-  }
-  render() {
-    return (
-      <div>
-      <Title3 text='Browse Properties' />
-      <p class='grey-text'>View a map displaying properties with the following attributes</p>
-      <Form name='sellform' id='sellform'
-        onSubmit={this.handleSubmit}
-        class='ui form'>
-        <Form.Input
-          label='Suburb'
-          name='suburb'
-          value={this.state.suburb}
-          onChange={this.handleChange}
-          placeholder='Name of suburb'/>
-        <Form.Group>
-        <Form.Select label='Bedrooms'
-          name='bedrooms'
-          onChange={this.handleChangeSelect}
-          options={optionsNums}
-          placeholder='Number of Bedrooms'/>
-        <Form.Select label='Bathrooms'
-          name='bathrooms'
-          onChange={this.handleChangeSelect}
-          options={optionsNums}
-          placeholder='Number of Bathrooms'/>
-        </Form.Group>
-        <Button
-          type='submit'
-          content='Submit'
-          icon='right arrow'
-          labelPosition='left'
-          role='button'>
-        </Button>
-      </Form>
-      </div>
-    );
-  }
-}
 /******************************************************************************/
 class Renovate extends Component {
   render() {

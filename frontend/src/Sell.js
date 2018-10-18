@@ -1,0 +1,193 @@
+import React, { Component } from 'react';
+import { Button, Form, Divider, Tab, Modal, Message } from 'semantic-ui-react';
+import { DateInput } from 'semantic-ui-calendar-react';
+import createHistory from "history/createBrowserHistory";
+import axios from 'axios';
+
+import './ActualApp.css';
+
+const history = createHistory({forceRefresh:true})
+const Title2 = ({ text }) => ( <h1 class='App-title2'>{text}</h1> );
+const Title3 = ({ text }) => ( <h2 class='App-title3'>{text}</h2> );
+const Title4 = ({ text }) => ( <h3 class='App-title3'>{text}</h3> );
+
+const optionsType = [
+  { key: 'H', text: 'House', value:'h'},
+  { key: 'U', text: 'Unit', value:'u'},
+  { key: 'T', text: 'Townhouse', value:'t'}
+]
+
+const optionsNums = [
+  {key: '1', text: '1', value:1},
+  {key: '2', text: '2', value:2},
+  {key: '3', text: '3', value:3},
+  {key: '4', text: '4', value:4},
+  {key: '5', text: '5', value:5},
+  {key: '6', text: '6', value:6},
+  {key: '7', text: '7', value:7},
+  {key: '8', text: '8', value:8},
+  {key: '9', text: '9', value:9},
+  {key: '10', text: '10', value:10},
+]
+
+const PricePredictionResult = ({ price }) => (
+  <div>
+  <Message>
+  <Title3 text='We value your property at ...' />
+  <h1>${price} AUD</h1>
+  </Message>
+
+  </div>
+);
+
+class Sell extends Component {
+  constructor(props) {
+    super(props);
+    this.location = this.props.location;
+    this.state = {
+        predict: [],
+        Address: '',
+        Postcode: '',
+        date: '',
+        year: '',
+        month: '',
+        day: '',
+        Type: '',
+        Bedroom: '',
+        Bathroom: '',
+        Car: '',
+        Landsize: '',
+        Buildingarea: ''};
+
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+    this.handleChangeSelect = this.handleChangeSelect.bind(this);
+    this.handleChangeDate = this.handleChangeDate.bind(this);
+  }
+
+  componentDidMount() {
+    console.log(localStorage.getItem('session'));
+    if (localStorage.getItem('session') === null) {
+      alert("You are unable to use this API without signing in!");
+      this.setState({loggedIn: false});
+    }
+  }
+
+  handleChange(event) {
+    const { name, value } = event.target;
+    this.setState({ [name]: value });
+  }
+
+  handleChangeSelect(event, data) {
+    const { name, value } = data;
+    this.setState({ [name]: value });
+  }
+
+  handleChangeDate = (event, {name, value}) => {
+      if (this.state.hasOwnProperty(name)) {
+        const day = value.split("-")[0].toString()
+        const mon = value.split("-")[1].toString()
+        const year = value.split("-")[2].toString()
+
+        this.setState({ 'day': day, 'month': mon, 'year': year, [name]: value});
+      }
+    }
+
+  handleSubmit(event) {
+    event.preventDefault();
+    console.log(this.state);
+    axios.post('http://localhost:5000/test/predict_price', this.state).then(
+      response => {
+        this.setState({ predict: response.data });
+        console.log(this.state.predict)
+      }
+    );
+    // history.push('/sell-result', this.state)
+  }
+  render () {
+    return (
+      <div>
+      <Title3 text='Search Property'/>
+      <p class='grey-text'>Valuation of property with the following attributes</p>
+      <Form name='sellform' id='sellform'
+        onSubmit={this.handleSubmit}
+        class='ui form'
+        style={{marginBottom: 20}}>
+      <Title4 text='Location & Date' />
+        <Form.Group widths='equal'>
+          <Form.Input required fluid width={9}
+            name='Address'
+            value={this.state.address}
+            onChange={this.handleChange}
+            label='Address'
+            placeholder='Sydney' />
+          <Form.Input fluid width={3}
+            name='Postcode'
+            value={this.state.postcode}
+            onChange={this.handleChange}
+            label='Postcode'
+            placeholder='2000' />
+        </Form.Group>
+          <DateInput
+          label='Date'
+          name="date"
+          placeholder="Date"
+          value={this.state.date}
+          onChange={this.handleChangeDate} />
+
+        <Divider />
+        <Title4 text='Property Features' />
+        <Form.Select label='Type'
+          name='Type'
+          options={optionsType}
+          value={this.state.type}
+          onChange={this.handleChangeSelect}
+          placeholder='Type of Property' />
+        <Form.Group widths='equal'>
+          <Form.Select label='Bedrooms'
+            name='Bedroom'
+            onChange={this.handleChangeSelect}
+            options={optionsNums}
+            placeholder='Number of Bedrooms'/>
+          <Form.Select label='Bathrooms'
+            name='Bathroom'
+            onChange={this.handleChangeSelect}
+            options={optionsNums}
+            placeholder='Number of Bathrooms'/>
+          <Form.Select label='Car Spaces'
+            name='Car'
+            onChange={this.handleChangeSelect}
+            options={optionsNums}
+            placeholder='Number of Car Spaces'/>
+        </Form.Group>
+        <Form.Group widths='equal'>
+          <Form.Input fluid
+            name='Landsize'
+            onChange={this.handleChange}
+            value={this.state.landsize}
+            label='Landsize (m^2)'
+            placeholder='399'/>
+          <Form.Input fluid
+            name='Buildingarea'
+            onChange={this.handleChange}
+            value={this.state.buildingarea}
+            label='Building Area (m^2)'
+            placeholder='399' />
+        </Form.Group>
+      <Divider />
+
+      <Button
+        type='submit'
+        content='Submit'
+        icon='right arrow'
+        labelPosition='left'
+        role='button'>
+      </Button>
+      </Form>
+      {this.state.predict.price && <PricePredictionResult price={this.state.predict.price} />}
+      </div>
+    );
+  }
+}
+
+export default Sell;
