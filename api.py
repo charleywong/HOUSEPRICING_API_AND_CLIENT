@@ -434,8 +434,10 @@ class HouseSearch( Resource ):
         arg = {
             'min': args[ 'min' ],
             'max': args[ 'max' ],
-            'suburb': args[ 'suburb']
+            'suburb': args[ 'suburb' ]
         }
+        print(arg)
+        print(hp.search(arg))
         return {
             'results': hp.search( arg )
         }, 200

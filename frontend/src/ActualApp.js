@@ -56,7 +56,7 @@ class ActualApp extends Component {
         <Banner />
         <div class='ui main text container'>
           <Title2 text='Property Valuation API'/>
-          <Link to='/docs'><button style={{marginBottom:20}} class='ui button'>View Documentation</button></Link>
+          <Link to='/docs'><button class='ui button'>View Documentation</button></Link>
           <ApiForm location={this.props.location}/>
 
         </div>
@@ -83,7 +83,7 @@ class ApiForm extends React.Component {
     return(
       <Segment raised style={{marginBottom:50}}>
         <Label as='a' color='black' ribbon>Client</Label><br /><br />
-        <p className='grey-text'>Select <strong><u>Buy Property</u></strong> to browse homes within an area and budget, <strong><u>Sell Property</u></strong> for an accurate valuation of property or <strong><u>Renovate Property</u></strong> to see how much value there is in renovating your home!  </p>
+        <p className='grey-text'>Select <Label horizontal>Buy Property</Label> to browse homes within an area and budget, <Label horizontal>Sell Property</Label> for an accurate valuation of property or <Label horizontal>Renovate Property</Label> to see how much value there is in renovating your home!  </p>
         <Tab menu={{ secondary: true, pointing: true, attached:true }} panes={panes} />
       </Segment>
     );
