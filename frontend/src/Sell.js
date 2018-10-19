@@ -3,6 +3,7 @@ import { Button, Form, Divider, Tab, Modal, Message } from 'semantic-ui-react';
 import { DateInput } from 'semantic-ui-calendar-react';
 import createHistory from "history/createBrowserHistory";
 import axios from 'axios';
+import ReactJson from 'react-json-view';
 
 import './ActualApp.css';
 
@@ -30,15 +31,7 @@ const optionsNums = [
   {key: '10', text: '10', value:10},
 ]
 
-const PricePredictionResult = ({ price }) => (
-  <div>
-  <Message>
-  <Title3 text='We have valued your property at ...' />
-  <h1>${price} AUD</h1>
-  </Message>
 
-  </div>
-);
 
 class Sell extends Component {
   constructor(props) {
@@ -105,6 +98,27 @@ class Sell extends Component {
     // history.push('/sell-result', this.state)
   }
   render () {
+    const ModalJSON = () => (
+      <Modal trigger={<button class='ui animated button'>
+        <div class='visible content'>View JSON</div>
+        <div class='hidden content'>
+          <i aria-hidden='true' class='external alternate icon' />
+        </div></button>}>
+        <Modal.Header>JSON Result</Modal.Header>
+        <Modal.Content>
+          <Modal.Description>
+          <ReactJson src={this.state} />
+          </Modal.Description>
+        </Modal.Content>
+      </Modal>
+    );
+    const PricePredictionResult = ({ price }) => (
+      <div>
+      <Title3 text='We have valued your property at ...' />
+      <h1>${price} AUD</h1>
+      <ModalJSON />
+      </div>
+    );
     return (
       <div>
       <Title3 text='Search Property'/>

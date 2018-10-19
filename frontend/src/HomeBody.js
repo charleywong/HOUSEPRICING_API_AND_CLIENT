@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { Image, List } from 'semantic-ui-react';
+import { Image, List, Segment, Label } from 'semantic-ui-react';
 import ScrollableAnchor, { configureAnchors } from 'react-scrollable-anchor';
 import { Link } from 'react-router-dom';
 
@@ -74,26 +74,30 @@ class Section extends Component {
 
 const AboutBody = () => (
   <div>
-  <p>Housos gives you accurate approximate housing prices based on location and other house attributes. Machine learning, yadda yadda</p>
-  <p>The GUI client is written in React.js and served by a Flask-RESTPlus API backend. The machine learning module we use is Python&#39;s sklearn. The dataset used is Melbourne&#39;s Housing Clearance Data from Kaggle.</p>
-  <div>
-  <a href="https://github.com/crisb0/CS9321_ass03/" target="_blank" rel="noopener noreferrer"><button class='ui animated button'>
-    <div class='visible content'>Github Link</div>
-    <div class='hidden content'><i class='external alternate icon'/></div>
-  </button></a>
-  <a  href='https://drive.google.com/drive/folders/14iEiMHsPoinbkgTtaa5QAgRR_WCscU4M?usp=sharing' target="_blank" rel="noopener noreferrer"><button class='ui button animated'>
-    <div class='visible content'>G Drive Link</div>
-    <div class='hidden content'><i class='external alternate icon'/></div>
-  </button></a>
-  <a href="https://www.kaggle.com/anthonypino/melbourne-housing-market" target="_blank" rel="noopener noreferrer"><button class='ui animated button'>
-    <div class='visible content'>Dataset Link</div>
-    <div class='hidden content'><i class='external alternate icon'/></div>
-  </button></a>
-  </div>
-  <Title3 text='The Team' />
-  Team Name: Friends
-  <TeamList />
+  <Segment raised>
+    <p>Housos gives you accurate approximate housing prices based on location and other house attributes.</p>
+    <p>The GUI client is written in React.js and served by a Flask-RESTPlus API backend. The machine learning module we use is Python&#39;s sklearn. The dataset used is Melbourne&#39;s Housing Clearance Data from Kaggle.</p>
+    <div>
+      <a href="https://github.com/crisb0/CS9321_ass03/" target="_blank" rel="noopener noreferrer"><button class='ui animated button'>
+        <div class='visible content'>Github Link</div>
+        <div class='hidden content'><i class='external alternate icon'/></div>
+      </button></a>
+      <a  href='https://drive.google.com/drive/folders/14iEiMHsPoinbkgTtaa5QAgRR_WCscU4M?usp=sharing' target="_blank" rel="noopener noreferrer"><button class='ui button animated'>
+        <div class='visible content'>G Drive Link</div>
+        <div class='hidden content'><i class='external alternate icon'/></div>
+      </button></a>
+      <a href="https://www.kaggle.com/anthonypino/melbourne-housing-market" target="_blank" rel="noopener noreferrer"><button class='ui animated button'>
+        <div class='visible content'>Dataset Link</div>
+        <div class='hidden content'><i class='external alternate icon'/></div>
+      </button></a>
+    </div>
+  </Segment>
 
+  <Segment raised>
+  <Label as='a' ribbon color='black'>The Team</Label>
+  Friends
+  <TeamList />
+  </Segment>
   </div>
 );
 
@@ -134,7 +138,7 @@ const TeamList = props => (
 const HomeBody = () => (
   <div>
   <Landing />
-  <Section tag='about' title='ABOUT US' />
+  <Section tag='about' title='About Us' />
   </div>
 );
 

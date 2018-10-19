@@ -13,6 +13,46 @@ import * as MapboxGL from 'mapbox-gl';
 const Map = ReactMapboxGl({
  accessToken: "pk.eyJ1IjoiY3Jpc2IwIiwiYSI6ImNqbmVpcTFjNjA0YmUzd25iMnY4azhsNncifQ.XYPtG_NSEodlfarmqpatrQ"
 });
+const symbolLayout: MapboxGL.SymbolLayout = {
+  'text-field': '{place}',
+  'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
+  'text-offset': [0, 0.6],
+  'text-anchor': 'top'
+};
+const symbolPaint: MapboxGL.SymbolPaint = {
+  'text-color': 'white'
+};
+
+const circleLayout: MapboxGL.CircleLayout = { visibility: 'visible' };
+const circlePaint: MapboxGL.CirclePaint = {
+  'circle-color': 'black',
+  'circle-blur': 0.4
+};
+const geojson = {
+  'type': 'FeatureCollection',
+  'features': [
+    {
+      'type': 'Feature',
+      'geometry': {
+        'type': 'Point',
+        'coordinates': [144.9631, -37.8136]
+      },
+      'properties': {
+        'title': 'Test'
+      }
+    },
+    {
+      'type': 'Feature',
+      'geometry': {
+        'type': 'Point',
+        'coordinates': [142.000, -36.000]
+      },
+      'properties': {
+        'title': 'Test2'
+      }
+    }
+  ]
+}
 
 const bannerStyle = {
   height:300,
@@ -40,7 +80,8 @@ class BuyResult extends React.Component {
       result: [],
       initlat: 0,
       initlng: 0,
-      markers: []
+      schools: [],
+      crimes: []
     };
   };
 
@@ -53,6 +94,7 @@ class BuyResult extends React.Component {
         console.log(this.state)
       }
     ).catch(error => console.log(error));
+    // axios.get('http://127.0.0.1:5000/test/schools/' + {this.state.suburb} + '?')
   }
 
 
@@ -105,7 +147,8 @@ class BuyResult extends React.Component {
       // Adjust the heatmap radius by zoom level
       'heatmap-radius': {
         stops: [[0, 1], [5, 50]]
-      }
+      },
+      'heatmap-opacity': 0.7
     };
     const ModalJSON = () => (
       <Modal trigger={<button class='ui animated button'>
@@ -137,12 +180,24 @@ class BuyResult extends React.Component {
             width: "100"
           }}
           center={[144.9631, -37.8136]}>
+          {/* geojson layer black dots
+          <GeoJSONLayer
+                    data={geojson}
+                    circleLayout={circleLayout}
+                    circlePaint={circlePaint}
+                    circleOnClick={this.onClickCircle}
+                    symbolLayout={symbolLayout}
+                    symbolPaint={symbolPaint}
+                    circleOnMouseEnter={this.onMouseEnterCircle}
+                  /> */}
           <Layer type="heatmap" paint={layerPaint}>
           {testdata.map((el: any, index: number) => (
             <Feature key={index} coordinates={[el.Latitude, el.Longitude]} properties={el} />
           ))}
         </Layer>
         </Map>
+        {/* school and crime data */}
+
         </Segment>
       </div>
       </div>
