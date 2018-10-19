@@ -93,8 +93,20 @@ class BuyResult extends React.Component {
         this.setState({ initlat: response.data.results[0].Latitude, initlng: response.data.results[0].Longitude });
         console.log(this.state)
       }
-    ).catch(error => console.log(error));
-    // axios.get('http://127.0.0.1:5000/test/schools/' + {this.state.suburb} + '?')
+    ).catch(error => alert('/search: ' + error.message));
+    axios.get('http://127.0.0.1:5000/test/school/' + this.state.suburb + '?ascending=true&sort_by=1').then(
+      response => {
+        console.log(response.data)
+        this.setState({ schools: response.data.schools  })
+      }
+    ).catch(error => alert('/school: ' + error));
+
+    axios.get('http://127.0.01:5000/test/crimes/' + this.state.suburb + '?group_by=0').then(
+      response => {
+        console.log(response.data)
+        this.setState({ crimes: response.data.results });
+      }
+    ).catch(error => alert('/crimes: ' + error));
   }
 
 
