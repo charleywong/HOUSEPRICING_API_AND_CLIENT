@@ -94,42 +94,47 @@ class Renovate extends Component {
     }
 
   handleSubmit(event) {
+
     var current;
     var reno;
     event.preventDefault();
-    axios.post('http://localhost:5000/test/predict_price', this.state).then(
-      response => {
-        this.setState({ predictCurr: response.data });
-        console.log(this.state.predictCurr)
-        // SWAP VALUES OF FIELD AND RENOFIELD - Bedroom, Bathroom, Car, Landsize, Buildingarea
-        const bd = this.state.Bedroom;
-        const bt = this.state.Bathroom;
-        const cr = this.state.Car;
-        const ls = this.state.Landsize;
-        const ba = this.state.Buildingarea;
-        this.setState({
-          Bedroom: this.state.RenoBedroom,
-          RenoBedroom: bd,
-          Bathroom: this.state.RenoBathroom,
-          RenoBathroom: bt,
-          Car: this.state.RenoCar,
-          RenoCar: cr,
-          Landsize:  this.state.RenoLandsize,
-          RenoLandsize: ls,
-          Buildingarea: this.state.RenoBuildingarea,
-          RenoBuildingarea: ba
-        });
-      }
-    ).then( () => {
-      console.log(this.state)
+    if (localStorage.getItem('session') === null) {
+      alert("You are unable to use this API without signing in!");
+      this.setState({loggedIn: false});
+    } else {
       axios.post('http://localhost:5000/test/predict_price', this.state).then(
         response => {
-          this.setState({ predictReno: response.data });
-          console.log(this.state.predictReno)
+          this.setState({ predictCurr: response.data });
+          console.log(this.state.predictCurr)
+          // SWAP VALUES OF FIELD AND RENOFIELD - Bedroom, Bathroom, Car, Landsize, Buildingarea
+          const bd = this.state.Bedroom;
+          const bt = this.state.Bathroom;
+          const cr = this.state.Car;
+          const ls = this.state.Landsize;
+          const ba = this.state.Buildingarea;
+          this.setState({
+            Bedroom: this.state.RenoBedroom,
+            RenoBedroom: bd,
+            Bathroom: this.state.RenoBathroom,
+            RenoBathroom: bt,
+            Car: this.state.RenoCar,
+            RenoCar: cr,
+            Landsize:  this.state.RenoLandsize,
+            RenoLandsize: ls,
+            Buildingarea: this.state.RenoBuildingarea,
+            RenoBuildingarea: ba
+          });
         }
-      ).catch(error => console.log(error));
-    }).catch(error => console.log(error));
-
+      ).then( () => {
+        console.log(this.state)
+        axios.post('http://localhost:5000/test/predict_price', this.state).then(
+          response => {
+            this.setState({ predictReno: response.data });
+            console.log(this.state.predictReno)
+          }
+        ).catch(error => console.log(error));
+      }).catch(error => console.log(error));
+    }
 
   }
 

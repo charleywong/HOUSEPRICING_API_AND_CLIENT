@@ -16,7 +16,6 @@ class LoginModal extends React.Component {
     this.handleOpen = this.handleOpen.bind(this);
     this.handleClose = this.handleClose.bind(this);
 
-    localStorage.setItem('test', 'hello');
 
   }
   // close the modal
@@ -103,7 +102,7 @@ class Nav extends React.Component {
 
   handleLogout = () => {
     localStorage.removeItem('session', null)
-    console.log('logged out' + localStorage.getItem('session'))
+    console.log('logged out ' + localStorage.getItem('session'))
   }
   render() {
     let logio;

@@ -45,6 +45,15 @@ class Buy extends Component {
     this.handleChange = this.handleChange.bind(this)
     this.handleChangeSelect = this.handleChangeSelect.bind(this)
   }
+
+  componentDidMount() {
+    console.log(localStorage.getItem('session'));
+    if (localStorage.getItem('session') === null) {
+      alert("You are unable to use this API without signing in!");
+      this.setState({loggedIn: false});
+    }
+  }
+
   handleChange(event) {
     const { name, value } = event.target;
     this.setState({ [name]: value });
@@ -61,7 +70,12 @@ class Buy extends Component {
     const maxtmp = this.state.priceRange.max;
     this.setState({ min: {mintmp}, max: {maxtmp} })
     console.log(this.state)
+    if (localStorage.getItem('session') === null) {
+      alert("You are unable to use this API without signing in!");
+      this.setState({loggedIn: false});
+    } else {
     history.push('/buy-result', this.state)
+    }
   }
   render() {
     return (

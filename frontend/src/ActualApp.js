@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Button, Form, Divider, Tab, Segment, Label } from 'semantic-ui-react';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import { DateInput } from 'semantic-ui-calendar-react';
 import createHistory from "history/createBrowserHistory";
 import axios from 'axios';
@@ -51,6 +51,7 @@ const optionsNums = [
 /******************************************************************************/
 /******************************************************************************/
 class ActualApp extends Component {
+
   render() {
     return (
       <div>

@@ -89,12 +89,17 @@ class Sell extends Component {
   handleSubmit(event) {
     event.preventDefault();
     console.log(this.state);
-    axios.post('http://localhost:5000/test/predict_price', this.state).then(
-      response => {
-        this.setState({ predict: response.data });
-        console.log(this.state.predict)
-      }
-    ).catch(error => console.log(error));
+    if (localStorage.getItem('session') === null) {
+      alert("You are unable to use this API without signing in!");
+      this.setState({loggedIn: false});
+    } else {
+      axios.post('http://localhost:5000/test/predict_price', this.state).then(
+        response => {
+          this.setState({ predict: response.data });
+          console.log(this.state.predict)
+        }
+      ).catch(error => console.log(error));
+    }
     // history.push('/sell-result', this.state)
   }
   render () {
