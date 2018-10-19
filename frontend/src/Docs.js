@@ -21,7 +21,7 @@ const Banner = ({ img, text }) => (
 const Docs = () => (
   <div>
     <Banner />
-    <div class='ui main text container' style={{marginBottom:30}}>
+    <div class='ui main container' style={{marginBottom:30}}>
       <Title2 text='Documentation'/>
       <Segment raised>
       <Label as='a' ribbon color='black'>Usage</Label>
