@@ -33,13 +33,13 @@ const Title2 = ({ text }) => ( <h1 class='App-title2'>{text}</h1> );
 class BuyResult extends React.Component {
   constructor(props) {
     super(props);
-    const data = this.props.location.state
+    this.data = this.props.location.state;
     this.state = {
-      suburb: data.suburb,
-      min: data.priceRange.min,
-      max: data.priceRange.max,
-      Bedroom: data.bedrooms,
-      Bathroom: data.bathrooms,
+      suburb: this.data.suburb,
+      min: this.data.priceRange.min,
+      max: this.data.priceRange.max,
+      Bedroom: this.data.bedrooms,
+      Bathroom: this.data.bathrooms,
       result: [],
       initlat: 0,
       initlng: 0,
@@ -49,6 +49,7 @@ class BuyResult extends React.Component {
   };
 
   componentWillMount() {
+    console.log(this.data)
     axios.post('http://127.0.0.1:5000/test/search', this.state).then(
       response => {
         console.log(response.data)
@@ -57,14 +58,14 @@ class BuyResult extends React.Component {
         console.log(this.state)
       }
     ).catch(error => alert('/search: ' + error.message));
-    axios.get('http://127.0.0.1:5000/test/school/' + this.state.suburb + '?ascending=true&sort_by=1').then(
+    axios.get('http://127.0.0.1:5000/test/school/' + this.state.suburb + '?ascending=' + this.data.ascending + '&sort_by=' + this.data.sort_by ).then(
       response => {
         console.log(response.data)
         this.setState({ schools: response.data.schools  })
       }
     ).catch(error => alert('/school: ' + error));
 
-    axios.get('http://127.0.01:5000/test/crimes/' + this.state.suburb + '?group_by=0').then(
+    axios.get('http://127.0.01:5000/test/crimes/' + this.state.suburb + '?group_by=' + this.data.group_by).then(
       response => {
         console.log(response.data)
         this.setState({ crimes: response.data.results });
@@ -73,6 +74,10 @@ class BuyResult extends React.Component {
   }
 
 
+/******************************************************************************/
+/******************************************************************************/
+/******************************************************************************/
+/******************************************************************************/
 /******************************************************************************/
 
 
@@ -132,7 +137,7 @@ class BuyResult extends React.Component {
     return(
       <div>
         <Banner />
-        <div class='ui main text container' style={{marginBottom:60}}>
+        <div class='ui main container' style={{marginBottom:60}}>
           <Title2 text='Browsing Properties'/>
           <ModalJSON />
           <Segment raised>
@@ -155,7 +160,7 @@ class BuyResult extends React.Component {
               ))}
             </Layer>
             </Map>
-          {/* school and crime data */}
+          {/* SCHOOL AND CRIME DATA IN THIS SEGMENT */}
           </Segment>
           <Segment>
           <Label as='a' ribbon color='black'>Locality Data</Label>

@@ -33,12 +33,13 @@ const optionsNums = [
 
 
 
-class Sell extends Component {
+class Renovate extends Component {
   constructor(props) {
     super(props);
     this.location = this.props.location;
     this.state = {
-        predict: [],
+        predictCurr: [],
+        predictReno: [],
         Address: '',
         Postcode: '',
         date: '',
@@ -50,7 +51,13 @@ class Sell extends Component {
         Bathroom: 0,
         Car: 0,
         Landsize: '',
-        Buildingarea: ''};
+        Buildingarea: '',
+        RenoBedroom: 0,
+        RenoBathroom: 0,
+        RenoCar: 0,
+        RenoLandsize: '',
+        RenoBuildingarea: '',
+      };
 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
@@ -87,17 +94,53 @@ class Sell extends Component {
     }
 
   handleSubmit(event) {
+    var current;
+    var reno;
     event.preventDefault();
-    console.log(this.state);
     axios.post('http://localhost:5000/test/predict_price', this.state).then(
       response => {
-        this.setState({ predict: response.data });
-        console.log(this.state.predict)
+        this.setState({ predictCurr: response.data });
+        console.log(this.state.predictCurr)
+        // SWAP VALUES OF FIELD AND RENOFIELD - Bedroom, Bathroom, Car, Landsize, Buildingarea
+        const bd = this.state.Bedroom;
+        const bt = this.state.Bathroom;
+        const cr = this.state.Car;
+        const ls = this.state.Landsize;
+        const ba = this.state.Buildingarea;
+        this.setState({
+          Bedroom: this.state.RenoBedroom,
+          RenoBedroom: bd,
+          Bathroom: this.state.RenoBathroom,
+          RenoBathroom: bt,
+          Car: this.state.RenoCar,
+          RenoCar: cr,
+          Landsize:  this.state.RenoLandsize,
+          RenoLandsize: ls,
+          Buildingarea: this.state.RenoBuildingarea,
+          RenoBuildingarea: ba
+        });
       }
-    ).catch(error => console.log(error));
-    // history.push('/sell-result', this.state)
+    ).then( () => {
+      console.log(this.state)
+      axios.post('http://localhost:5000/test/predict_price', this.state).then(
+        response => {
+          this.setState({ predictReno: response.data });
+          console.log(this.state.predictReno)
+        }
+      ).catch(error => console.log(error));
+    }).catch(error => console.log(error));
+
+
   }
+
   render () {
+    const RenoPrediction = () => (
+      <div>
+      <Title3 text='We predict an improved property value of ...' />
+      <h1>${this.state.predictReno.price - this.state.predictCurr.price} AUD</h1>
+      <ModalJSON />
+      </div>
+    );
     const ModalJSON = () => (
       <Modal trigger={<button class='ui animated button'>
         <div class='visible content'>View JSON</div>
@@ -112,13 +155,7 @@ class Sell extends Component {
         </Modal.Content>
       </Modal>
     );
-    const PricePredictionResult = ({ price }) => (
-      <div>
-      <Title3 text='We have valued your property at ...' />
-      <h1>${price} AUD</h1>
-      <ModalJSON />
-      </div>
-    );
+
     return (
       <div>
       <Title3 text='Looking to Renovate?'/>
@@ -184,30 +221,30 @@ class Sell extends Component {
         <Title4 text='After Renovations' />
         <Form.Group widths='equal'>
           <Form.Select required label='Bedrooms'
-            name='Bedroom'
+            name='RenoBedroom'
             onChange={this.handleChangeSelect}
             options={optionsNums}
             placeholder='Number of Bedrooms'/>
           <Form.Select required label='Bathrooms'
-            name='Bathroom'
+            name='RenoBathroom'
             onChange={this.handleChangeSelect}
             options={optionsNums}
             placeholder='Number of Bathrooms'/>
           <Form.Select required label='Car Spaces'
-            name='Car'
+            name='RenoCar'
             onChange={this.handleChangeSelect}
             options={optionsNums}
             placeholder='Number of Car Spaces'/>
         </Form.Group>
         <Form.Group widths='equal'>
           <Form.Input fluid
-            name='Landsize'
+            name='RenoLandsize'
             onChange={this.handleChange}
             value={this.state.landsize}
             label='Landsize (m^2)'
             placeholder='399'/>
           <Form.Input fluid
-            name='Buildingarea'
+            name='RenoBuildingarea'
             onChange={this.handleChange}
             value={this.state.buildingarea}
             label='Building Area (m^2)'
@@ -223,10 +260,10 @@ class Sell extends Component {
         role='button'>
       </Button>
       </Form>
-      {this.state.predict.price && <PricePredictionResult price={this.state.predict.price} />}
+      {this.state.predictCurr.price && this.state.predictReno.price && <RenoPrediction />}
       </div>
     );
   }
 }
 
-export default Sell;
+export default Renovate;

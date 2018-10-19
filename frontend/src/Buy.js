@@ -36,7 +36,10 @@ class Buy extends Component {
       priceRange: {
         min: 400000,
         max: 1200000
-      }
+      },
+      group_by: '0',        // default values
+      sort_by: '1',
+      ascending: 'true'
     }
     this.handleSubmit = this.handleSubmit.bind(this)
     this.handleChange = this.handleChange.bind(this)
@@ -95,6 +98,30 @@ class Buy extends Component {
           onChange={value => this.setState({ priceRange: value })}
           onChangeComplete={value => console.log(value)} />
         </div>
+        {/*** SCHOOL AND CRIME FIELDS:
+          [/SCHOOL] - suburb, ascending, sort_by
+          [/CRIMES] - suburb, group_by
+         ***/}
+         <Title4 text='View School Statistics'/>
+         <Form.Group>
+         <Form.Select label='Sort By'
+          name='sort_by'
+          onChange={this.handleChangeSelect}
+          options={optionsSortBy}
+          placeholder='Sort By Value'/>
+         <Form.Select label='Order'
+          name='ascending'
+          onChange={this.handleChangeSelect}
+          options={optionsAscending}
+          placeholder='Ascending or Descending'/>
+          </Form.Group>
+         <Title4 text='View Crime Statistics'/>
+         <Form.Select label='Group By' width={2}
+          name='group_by'
+          onChange={this.handleChangeSelect}
+          options={optionsGroupBy}
+          placeholder='Group By Value'/>
+
         <Button
           type='submit'
           content='Submit'
@@ -110,4 +137,20 @@ class Buy extends Component {
   }
 }
 
+const optionsSortBy = [
+  {text:'Number of Students', value:'0'},
+  {text:'Completion Rate', value:'1'},
+  {text:'Median', value:'2'},
+  {text:'Over 40% Completion', value:'3'}
+
+]
+const optionsAscending = [
+  {text:'Ascending', value:'true'},
+  {text:'Descending', value:'false'}
+]
+const optionsGroupBy = [
+  {text: 'Sum', value:'0'},
+  {text: 'Mean', value:'1'},
+  {text: 'Median', value:'2'}
+]
 export default Buy;

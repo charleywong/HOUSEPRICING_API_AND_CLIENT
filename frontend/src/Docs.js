@@ -45,6 +45,12 @@ const Docs = () => (
             View school and crime data within a suburb.
           </List.Content>
         </List.Item>
+        <List.Item >
+          <List.Content style={{margin:20}}>
+            <List.Header style={{marginBottom:10}}>Decide whether to renovate your property.</List.Header>
+            Gain insight into increasing your property value.
+          </List.Content>
+        </List.Item>
       </List>
       <Title4 text='Endpoints' />
       <Table color='orange'>
