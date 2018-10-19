@@ -11,48 +11,11 @@ import * as MapboxGL from 'mapbox-gl';
 
 
 const Map = ReactMapboxGl({
- accessToken: "pk.eyJ1IjoiY3Jpc2IwIiwiYSI6ImNqbmVpcTFjNjA0YmUzd25iMnY4azhsNncifQ.XYPtG_NSEodlfarmqpatrQ"
+ accessToken: "pk.eyJ1IjoiY3Jpc2IwIiwiYSI6ImNqbmVpcTFjNjA0YmUzd25iMnY4azhsNncifQ.XYPtG_NSEodlfarmqpatrQ",
+ minZoom: 11,
+ maxZoom: 13
 });
-const symbolLayout: MapboxGL.SymbolLayout = {
-  'text-field': '{place}',
-  'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
-  'text-offset': [0, 0.6],
-  'text-anchor': 'top'
-};
-const symbolPaint: MapboxGL.SymbolPaint = {
-  'text-color': 'white'
-};
 
-const circleLayout: MapboxGL.CircleLayout = { visibility: 'visible' };
-const circlePaint: MapboxGL.CirclePaint = {
-  'circle-color': 'black',
-  'circle-blur': 0.4
-};
-const geojson = {
-  'type': 'FeatureCollection',
-  'features': [
-    {
-      'type': 'Feature',
-      'geometry': {
-        'type': 'Point',
-        'coordinates': [144.9631, -37.8136]
-      },
-      'properties': {
-        'title': 'Test'
-      }
-    },
-    {
-      'type': 'Feature',
-      'geometry': {
-        'type': 'Point',
-        'coordinates': [142.000, -36.000]
-      },
-      'properties': {
-        'title': 'Test2'
-      }
-    }
-  ]
-}
 
 const bannerStyle = {
   height:300,
@@ -113,17 +76,6 @@ class BuyResult extends React.Component {
 /******************************************************************************/
 
 
-  /*** CHARTS AND DISPLAY DATA STUFF ***/
- onClickCircle = (evt: any) => {
-      console.log(evt);
-    };
-  onMouseEnterCircle = (evt: any) => {
-    console.log(evt)
-  }
-
-
-
-
   render() {
     const layerPaint = {
       'heatmap-weight': {
@@ -178,40 +130,33 @@ class BuyResult extends React.Component {
     );
     return(
       <div>
-      <Banner />
-      <div class='ui main text container' style={{marginBottom:60}}>
-        <Title2 text='Browsing Properties'/>
-        <ModalJSON />
-        <Segment raised>
-        <Label as='a' color='black' ribbon className='label'>Map</Label><br /><br />
-        <p className='grey-text'>Viewing results for a <Label horizontal>{this.state.Bedroom}</Label> bedroom, <Label horizontal>{this.state.Bathroom}</Label> bathroom property located in <Label horizontal>{this.state.suburb}</Label>. You have set a price range of <Label horizontal>${this.state.min}</Label> to <Label horizontal>${this.state.max}</Label> AUD.</p>
-        <Map
-          style="mapbox://styles/mapbox/light-v9"
-          containerStyle={{
-            height: "60vh",
-            width: "100"
-          }}
-          center={[144.9631, -37.8136]}>
-          {/* geojson layer black dots
-          <GeoJSONLayer
-                    data={geojson}
-                    circleLayout={circleLayout}
-                    circlePaint={circlePaint}
-                    circleOnClick={this.onClickCircle}
-                    symbolLayout={symbolLayout}
-                    symbolPaint={symbolPaint}
-                    circleOnMouseEnter={this.onMouseEnterCircle}
-                  /> */}
-          <Layer type="heatmap" paint={layerPaint}>
-          {testdata.map((el: any, index: number) => (
-            <Feature key={index} coordinates={[el.Latitude, el.Longitude]} properties={el} />
-          ))}
-        </Layer>
-        </Map>
-        {/* school and crime data */}
-
-        </Segment>
-      </div>
+        <Banner />
+        <div class='ui main text container' style={{marginBottom:60}}>
+          <Title2 text='Browsing Properties'/>
+          <ModalJSON />
+          <Segment raised>
+            <Label as='a' color='black' ribbon className='label'>Map</Label><br /><br />
+            <p className='grey-text'>Viewing results for a <Label horizontal>{this.state.Bedroom}</Label> bedroom, <Label horizontal>{this.state.Bathroom}</Label> bathroom property located in <Label horizontal>{this.state.suburb}</Label>. You have set a price range of <Label horizontal>${this.state.min}</Label> to <Label horizontal>${this.state.max}</Label> AUD.</p>
+            <Map
+              style="mapbox://styles/mapbox/light-v9"
+              containerStyle={{
+                height: "60vh",
+                width: "100"
+              }}
+              zoom={[12]}
+              center={[144.9631, -37.8136]}>
+              <Layer type="heatmap" paint={layerPaint}>
+              {testdata.map((el: any, index: number) => (
+                <Feature key={index} coordinates={[el.Latitude, el.Longitude]} properties={el} />
+              ))}
+            </Layer>
+            </Map>
+          {/* school and crime data */}
+          </Segment>
+          <Segment>
+          <Label as='a' ribbon color='black'>Locality Data</Label>
+          </Segment>
+        </div>
       </div>
     );
   }

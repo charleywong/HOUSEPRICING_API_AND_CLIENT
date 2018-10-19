@@ -68,7 +68,7 @@ class Buy extends Component {
       <Form name='sellform' id='sellform'
         onSubmit={this.handleSubmit}
         class='ui form'>
-        <Form.Input
+        <Form.Input required
           label='Suburb'
           name='suburb'
           value={this.state.suburb}
