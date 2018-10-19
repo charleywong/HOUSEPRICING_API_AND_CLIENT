@@ -10,6 +10,7 @@ import './ActualApp.css';
 import bannerimg from './img/bg2.jpg';
 import Sell from './Sell.js';
 import Buy from './Buy.js';
+import Renovate from './Renovate.js'
 
 const history = createHistory({forceRefresh:true})
 const Title2 = ({ text }) => ( <h1 class='App-title2'>{text}</h1> );
@@ -54,7 +55,7 @@ class ActualApp extends Component {
     return (
       <div>
         <Banner />
-        <div class='ui main text container'>
+        <div class='ui main container'>
           <Title2 text='Property Valuation API'/>
           <Link to='/docs'><button class='ui button'>View Documentation</button></Link>
           <ApiForm location={this.props.location}/>
@@ -96,14 +97,4 @@ class ApiForm extends React.Component {
 /******************************************************************************/
 /******************************************************************************/
 /******************************************************************************/
-class Renovate extends Component {
-  render() {
-    return (
-      <div>
-      Renovate
-      </div>
-    );
-  }
-}
-
 export default ActualApp;

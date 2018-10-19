@@ -12,8 +12,8 @@ import * as MapboxGL from 'mapbox-gl';
 
 const Map = ReactMapboxGl({
  accessToken: "pk.eyJ1IjoiY3Jpc2IwIiwiYSI6ImNqbmVpcTFjNjA0YmUzd25iMnY4azhsNncifQ.XYPtG_NSEodlfarmqpatrQ",
- minZoom: 11,
- maxZoom: 13
+ minZoom: 12,
+ maxZoom: 14
 });
 
 
@@ -128,6 +128,7 @@ class BuyResult extends React.Component {
         </Modal.Content>
       </Modal>
     );
+    const mapData = this.state.result;
     return(
       <div>
         <Banner />
@@ -143,11 +144,14 @@ class BuyResult extends React.Component {
                 height: "60vh",
                 width: "100"
               }}
-              zoom={[12]}
+              zoom={[13]}
               center={[144.9631, -37.8136]}>
               <Layer type="heatmap" paint={layerPaint}>
-              {testdata.map((el: any, index: number) => (
+              {/* {testdata.map((el: any, index: number) => (
                 <Feature key={index} coordinates={[el.Latitude, el.Longitude]} properties={el} />
+              ))} */}
+              {mapData.map((el: any, index: number) => (
+                <Feature key={index} coordinates={[el.Longitude, el.Latitude]} properties={el} />
               ))}
             </Layer>
             </Map>
@@ -161,22 +165,5 @@ class BuyResult extends React.Component {
     );
   }
 }
-
-const testdata = [
-  {
-    'Latitude': 144.9631,
-    'Longitude': -37.8136,
-    'Suburb': 'Melbourne',
-    'Bedroom': 1,
-    'Bathroom': 1
-  },
-  {
-    'Latitude': 144.9631,
-    'Longitude': -37.8136,
-    'Suburb': 'Melbourne',
-    'Bedroom': 1,
-    'Bathroom': 1
-  },
-]
 
 export default BuyResult;
