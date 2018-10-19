@@ -431,15 +431,9 @@ class HouseSearch( Resource ):
     @api.expect( search_input, validate=True )
     def post( self ):
         args = request.json
-        arg = {
-            'min': args[ 'min' ],
-            'max': args[ 'max' ],
-            'suburb': args[ 'suburb' ]
-        }
-        print(arg)
-        print(hp.search(arg))
+        print( args )
         return {
-            'results': hp.search( arg )
+            'results': hp.search( args[ 'min' ], args[ 'max' ], args[ 'suburb' ] )
         }, 200
 
 """

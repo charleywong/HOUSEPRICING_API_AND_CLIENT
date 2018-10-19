@@ -172,7 +172,7 @@ class HousePrices:
     #         zz[ arg ] = s[ arg ].values[ 0 ]
     #     return self.predict( zz )
 
-    def search( self, args ):
+    def search( self, mn, mx, suburb ):
         df = self.df.copy( )
         df.rename(
             columns={
@@ -182,9 +182,8 @@ class HousePrices:
             },
             inplace=True,
         )
-        vals = [ args[ key ] for key in args ]
-        print( 'Price > {} and Price < {} and Suburb == "{}"'.format( *vals ) )
-        res = df.query( 'Price > {} and Price < {} and Suburb == "{}"'.format( *vals ) )
+        print( 'Price > {} and Price < {} and Suburb == "{}"'.format( mn, mx, suburb ) )
+        res = df.query( 'Price > {} and Price < {} and Suburb == "{}"'.format( mn, mx, suburb ) )
 
         results = [ ]
         for row in res.values:
