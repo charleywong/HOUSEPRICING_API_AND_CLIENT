@@ -117,11 +117,12 @@ class Sell extends Component {
         </Modal.Content>
       </Modal>
     );
-    const PricePredictionResult = ({ price }) => (
+    
+    const PricePredictionResult = ({price}) => (
       <div>
-      <Title3 text='We have valued your property at ...' />
-      <h1>${price} AUD</h1>
-      <ModalJSON />
+        <Title3 text='We have valued your property at ...' />
+        <h1>${parseFloat(price.toFixed(2))} AUD</h1>
+        <ModalJSON />
       </div>
     );
     return (
@@ -203,7 +204,7 @@ class Sell extends Component {
         role='button'>
       </Button>
       </Form>
-      {this.state.predict.price && <PricePredictionResult price={this.state.predict.price} />}
+      {this.state.predict.price && <PricePredictionResult price={this.state.predict.price}/>}
       </div>
     );
   }

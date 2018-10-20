@@ -142,7 +142,7 @@ class Renovate extends Component {
     const RenoPrediction = () => (
       <div>
       <Title3 text='We predict an improved property value of ...' />
-      <h1>${this.state.predictReno.price - this.state.predictCurr.price} AUD</h1>
+      <h1>${parseFloat((this.state.predictReno.price - this.state.predictCurr.price).toFixed(2))} AUD</h1>
       <ModalJSON />
       </div>
     );

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Icon, Label, Segment } from 'semantic-ui-react';
+import { Modal, Icon, Label, Segment, List, Item, Divider, Tab} from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import ReactJson from 'react-json-view';
 import axios from 'axios';
@@ -9,6 +9,9 @@ import homeIcon from './img/home0.png';
 import ReactMapboxGl, { Layer, Feature, Source, GeoJSONLayer } from "react-mapbox-gl";
 import * as MapboxGL from 'mapbox-gl';
 
+const Title2 = ({ text }) => ( <h1 class='App-title2'>{text}</h1> );
+const Title3 = ({ text }) => ( <h2 class='App-title3'>{text}</h2> );
+const Title4 = ({ text }) => ( <h3 class='App-title3'>{text}</h3> );
 
 const Map = ReactMapboxGl({
  accessToken: "pk.eyJ1IjoiY3Jpc2IwIiwiYSI6ImNqbmVpcTFjNjA0YmUzd25iMnY4azhsNncifQ.XYPtG_NSEodlfarmqpatrQ",
@@ -27,7 +30,7 @@ const Banner = ({ img, text }) => (
   <div style={bannerStyle}>
   </div>
 );
-const Title2 = ({ text }) => ( <h1 class='App-title2'>{text}</h1> );
+// const Title2 = ({ text }) => ( <h1 class='App-title2'>{text}</h1> );
 
 
 class BuyResult extends React.Component {
@@ -41,8 +44,8 @@ class BuyResult extends React.Component {
       Bedroom: this.data.bedrooms,
       Bathroom: this.data.bathrooms,
       result: [],
-      initlat: 0,
-      initlng: 0,
+      initlat: -37.8136,
+      initlng: 144.9631,
       schools: [],
       crimes: []
     };
@@ -57,20 +60,37 @@ class BuyResult extends React.Component {
         this.setState({ initlat: response.data.results[0].Latitude, initlng: response.data.results[0].Longitude });
         console.log(this.state)
       }
-    ).catch(error => alert('/search: ' + error.message));
+    // ).catch(error => alert('/search: ' + error.message));
+    ).catch(function(error) {
+        alert('/search: ' + error.message)
+    })
     axios.get('http://127.0.0.1:5000/test/school/' + this.state.suburb + '?ascending=' + this.data.ascending + '&sort_by=' + this.data.sort_by ).then(
       response => {
         console.log(response.data)
         this.setState({ schools: response.data.schools  })
       }
-    ).catch(error => alert('/school: ' + error));
+    ).then(() => {
+      axios.get('http://127.0.01:5000/test/crimes/' + this.state.suburb + '?group_by=' + this.data.group_by).then(
+        response => {
+          console.log(response.data)
+          this.setState({ crimes: response.data.results });
+          console.log(this.state.crimes)
+        }
+      ).catch(error => alert('/crimes: ' + error))
+    }).catch(function(error) {
+        // alert('/school: ' + error.message)
+        // alert(error.response.status)
+        if (error.response.status == 404) {
+          // school data for suburb not found
+          // need to set the schools res to n/a or something
+        } else if (error.response.status == 400) {
 
-    axios.get('http://127.0.01:5000/test/crimes/' + this.state.suburb + '?group_by=' + this.data.group_by).then(
-      response => {
-        console.log(response.data)
-        this.setState({ crimes: response.data.results });
-      }
-    ).catch(error => alert('/crimes: ' + error));
+        } else {
+
+        }
+        // console.log(error)
+    })
+    
   }
 
 
@@ -119,6 +139,8 @@ class BuyResult extends React.Component {
       },
       'heatmap-opacity': 0.7
     };
+    
+
     const ModalJSON = () => (
       <Modal trigger={<button class='ui animated button'>
         <div class='visible content'>View JSON</div>
@@ -133,7 +155,105 @@ class BuyResult extends React.Component {
         </Modal.Content>
       </Modal>
     );
+    // i want to make a check so that if d == null or undefined, show appropriate stuff
+    function CheckSchoolData (data) {
+      console.log(data);
+
+      if (data.data.length == 0) {
+        return (
+        <Title4 text={'There is no data for this suburb'}/>
+        )
+      } else {
+        return (
+          data.data.map(function(d,idx) {
+              console.log(d)
+              return (
+                <div key={idx}>
+                  <Item.Group>
+                    <Item>
+                      <Item.Content>
+                        <Item.Description>
+                          <Title4 text={d.School_Name}/>
+                            <List style={ListStyle}>
+                              <List.Item>
+                                <List.Header>VCE Completion Percentage</List.Header>
+                                {d['VCE_Completion%']}
+                              </List.Item>
+                              <List.Item>
+                                <List.Header>VCE Median</List.Header>
+                                {d['VCE_Median']}
+                              </List.Item>
+                              <List.Item>
+                                <List.Header>VCE Over 40%</List.Header>
+                                {d['VCE_Over40%']}
+                              </List.Item>
+                              <List.Item>
+                                <List.Header>VCE Students</List.Header>
+                                {d['VCE_Students']}
+                              </List.Item>
+                            </List>
+                          </Item.Description>
+                        </Item.Content>
+                      </Item>
+                    </Item.Group>
+                </div>
+              );
+            })
+          )
+      }
+    }
+
+    function CheckCrimeData (data) {
+      console.log(data);
+
+      if (data.data.length == 0) {
+        return (
+        <Title4 text={'There is no data for this suburb'}/>
+        )
+      } else {
+        return (
+          data.data.map(function(d,idx) {
+              console.log(d)
+              return (
+                <div key={idx}>
+                  <Item.Group>
+                    <Item>
+                      <Item.Content>
+                        <Item.Description>
+                            <List style={ListStyle}>
+                              <List.Item>
+                                <List.Header>{d.category}</List.Header>
+                                {d.incidents}
+                              </List.Item>
+                              
+                            </List>
+                          </Item.Description>
+                        </Item.Content>
+                      </Item>
+                    </Item.Group>
+                </div>
+              );
+            })
+          )
+      }
+    }
+
     const mapData = this.state.result;
+    const schoolData = this.state.schools;
+    const crimeData = this.state.crimes;
+    var schoolHeading = 'Schools and their VCE Stats for the suburb of ' + this.state.suburb;
+    var crimeHeading = 'Crime data for the suburb of ' + this.state.suburb;
+    // console.log(mapData);
+    // console.log(schoolData)
+    console.log(crimeData);
+    const ListStyle = {
+      marginLeft:'3%'
+    }
+
+    const panes = [
+      {menuItem: 'School Information', render: () => <Tab.Pane><Title3 text={schoolHeading}/><Divider /> <CheckSchoolData data={schoolData}/> </Tab.Pane>},
+      {menuItem: 'Crime Information', render: () => <Tab.Pane><Title3 text={crimeHeading}/><Divider/>{crimeData && <CheckCrimeData data={crimeData}/>}</Tab.Pane>},
+    ]
     return(
       <div>
         <Banner />
@@ -150,7 +270,7 @@ class BuyResult extends React.Component {
                 width: "100"
               }}
               zoom={[13]}
-              center={[144.9631, -37.8136]}>
+              center={[this.state.initlng,this.state.initlat]}>
               <Layer type="heatmap" paint={layerPaint}>
               {/* {testdata.map((el: any, index: number) => (
                 <Feature key={index} coordinates={[el.Latitude, el.Longitude]} properties={el} />
@@ -163,8 +283,10 @@ class BuyResult extends React.Component {
           {/* SCHOOL AND CRIME DATA IN THIS SEGMENT */}
           </Segment>
           <Segment>
-          <Label as='a' ribbon color='black'>Locality Data</Label>
+            <Label as='a' ribbon color='black'>Locality Data</Label>
+            <Tab menu={{ secondary: true, pointing: true }} panes={panes} />
           </Segment>
+
         </div>
       </div>
     );
