@@ -51,7 +51,24 @@ class BuyResult extends React.Component {
     };
   };
 
+  
   componentWillMount() {
+    // function getSchool(suburb, ascending, sort) {
+    //   return (axios.get('http://127.0.0.1:5000/test/school/' + suburb + '?ascending=' + ascending + '&sort_by=' + sort).then (response => {
+    //       console.log(response.data);
+    //       this.setState({schools:response.data.schools});
+    //     }).catch(function(error) {
+    //       alert(error)
+    //     }));
+    // }
+    // function getCrime(suburb, groupBy) {
+    //   return (axios.get('http://127.0.01:5000/test/crimes/' + suburb + '?group_by=' + groupBy).then (response => {
+    //       console.log(response.data);
+    //       this.setState({ crimes: response.data.results });
+    //     }).catch(function(error) {
+    //       alert(error)
+    //     }));
+    // }
     console.log(this.data)
     axios.post('http://127.0.0.1:5000/test/search', this.state).then(
       response => {
@@ -64,32 +81,25 @@ class BuyResult extends React.Component {
     ).catch(function(error) {
         alert('/search: ' + error.message)
     })
-    axios.get('http://127.0.0.1:5000/test/school/' + this.state.suburb + '?ascending=' + this.data.ascending + '&sort_by=' + this.data.sort_by ).then(
+    axios.get('http://127.0.0.1:5000/test/school/' + this.state.suburb + '?ascending=' + this.data.ascending + '&sort_by=' + this.data.sort_by).then(
       response => {
         console.log(response.data)
-        this.setState({ schools: response.data.schools  })
-      }
-    ).then(() => {
-      axios.get('http://127.0.01:5000/test/crimes/' + this.state.suburb + '?group_by=' + this.data.group_by).then(
-        response => {
-          console.log(response.data)
-          this.setState({ crimes: response.data.results });
-          console.log(this.state.crimes)
+        this.setState({schools:response.data.schools})
+      }).catch(error => {
+        if (error.response.status == 400) {
+          // invalid field
         }
-      ).catch(error => alert('/crimes: ' + error))
-    }).catch(function(error) {
-        // alert('/school: ' + error.message)
-        // alert(error.response.status)
-        if (error.response.status == 404) {
-          // school data for suburb not found
-          // need to set the schools res to n/a or something
-        } else if (error.response.status == 400) {
+      })
+    const self = this;
+    axios.get('http://127.0.01:5000/test/crimes/' + this.state.suburb + '?group_by=' + this.data.group_by).then(
+      response => {
+        console.log(response.data)
+        self.setState({ crimes: response.data.results });
+        console.log(self.state.crimes)
+      }).catch(error => {
+        console.log(error)
+      })
 
-        } else {
-
-        }
-        // console.log(error)
-    })
     
   }
 
