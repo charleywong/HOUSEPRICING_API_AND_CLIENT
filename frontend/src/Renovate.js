@@ -57,6 +57,7 @@ class Renovate extends Component {
         RenoCar: 0,
         RenoLandsize: '',
         RenoBuildingarea: '',
+        token:localStorage.getItem('session')
       };
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -102,6 +103,7 @@ class Renovate extends Component {
       alert("You are unable to use this API without signing in!");
       this.setState({loggedIn: false});
     } else {
+      // this.setState({token:localStorage.getItem('session')})
       axios.post('http://localhost:5000/test/predict_price', this.state).then(
         response => {
           this.setState({ predictCurr: response.data });
@@ -132,8 +134,32 @@ class Renovate extends Component {
             this.setState({ predictReno: response.data });
             console.log(this.state.predictReno)
           }
-        ).catch(error => console.log(error));
-      }).catch(error => console.log(error));
+        ).catch(error => {
+          if (error.response.status == 400) {
+            alert('It seems like you have forgotten to enter in a field!')
+            // invalid field
+            // forgot something
+          } else if (error.response.status == 404) {
+            // address doesn't exist 
+            alert("It seems like this address doesn't exist!")
+          } else if (error.response.status == 401) {
+            alert("Unauthorised user! Please login to continue.")
+          }
+          console.log(error)
+        });
+      }).catch(error => {
+        if (error.response.status == 400) {
+          alert('It seems like you have forgotten to enter in a field!')
+          // invalid field
+          // forgot something
+        } else if (error.response.status == 404) {
+          // address doesn't exist 
+          alert("It seems like this address doesn't exist!")
+        } else if (error.response.status == 401) {
+          alert("Unauthorised user! Please login to continue.")
+        }
+        console.log(error)
+      });
     }
 
   }
@@ -142,7 +168,10 @@ class Renovate extends Component {
     const RenoPrediction = () => (
       <div>
       <Title3 text='We predict an improved property value of ...' />
-      <h1>${parseFloat((this.state.predictReno.price - this.state.predictCurr.price).toFixed(2))} AUD</h1>
+      <h1>${
+        (parseFloat((this.state.predictReno.price - this.state.predictCurr.price).toFixed(2))).toLocaleString()
+        
+      } AUD</h1>
       <ModalJSON />
       </div>
     );
@@ -176,13 +205,13 @@ class Renovate extends Component {
             value={this.state.address}
             onChange={this.handleChange}
             label='Address'
-            placeholder='Sydney' />
+            placeholder='Address, Suburb' />
           <Form.Input fluid width={3}
             name='Postcode'
             value={this.state.postcode}
             onChange={this.handleChange}
             label='Postcode'
-            placeholder='2000' />
+            placeholder='Postcode' />
         </Form.Group>
         <Form.Select required label='Type'
           name='Type'

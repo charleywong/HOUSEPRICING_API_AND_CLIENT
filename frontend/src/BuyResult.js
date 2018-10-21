@@ -47,29 +47,15 @@ class BuyResult extends React.Component {
       initlat: -37.8136,
       initlng: 144.9631,
       schools: [],
-      crimes: []
+      crimes: [],
+      token:localStorage.getItem('session')
     };
   };
 
   
   componentWillMount() {
-    // function getSchool(suburb, ascending, sort) {
-    //   return (axios.get('http://127.0.0.1:5000/test/school/' + suburb + '?ascending=' + ascending + '&sort_by=' + sort).then (response => {
-    //       console.log(response.data);
-    //       this.setState({schools:response.data.schools});
-    //     }).catch(function(error) {
-    //       alert(error)
-    //     }));
-    // }
-    // function getCrime(suburb, groupBy) {
-    //   return (axios.get('http://127.0.01:5000/test/crimes/' + suburb + '?group_by=' + groupBy).then (response => {
-    //       console.log(response.data);
-    //       this.setState({ crimes: response.data.results });
-    //     }).catch(function(error) {
-    //       alert(error)
-    //     }));
-    // }
-    console.log(this.data)
+
+
     axios.post('http://127.0.0.1:5000/test/search', this.state).then(
       response => {
         console.log(response.data)
@@ -79,19 +65,17 @@ class BuyResult extends React.Component {
       }
     // ).catch(error => alert('/search: ' + error.message));
     ).catch(function(error) {
-        alert('/search: ' + error.message)
+        console.log('/search: ' + error.message)
     })
-    axios.get('http://127.0.0.1:5000/test/school/' + this.state.suburb + '?ascending=' + this.data.ascending + '&sort_by=' + this.data.sort_by).then(
+    axios.get('http://127.0.0.1:5000/test/school/' + this.state.suburb + '?ascending=' + this.data.ascending + '&sort_by=' + this.data.sort_by + '&token=' + this.state.token).then(
       response => {
         console.log(response.data)
         this.setState({schools:response.data.schools})
       }).catch(error => {
-        if (error.response.status == 400) {
-          // invalid field
-        }
+        console.log(error)
       })
     const self = this;
-    axios.get('http://127.0.01:5000/test/crimes/' + this.state.suburb + '?group_by=' + this.data.group_by).then(
+    axios.get('http://127.0.01:5000/test/crimes/' + this.state.suburb + '?group_by=' + this.data.group_by + '&token=' + this.state.token).then(
       response => {
         console.log(response.data)
         self.setState({ crimes: response.data.results });

@@ -47,10 +47,14 @@ class LoginModal extends React.Component {
     /***
     POST REQ, set session in local storage as token-username
     ***/
+    // console.log(payload)
     axios.post(url, payload)
     .then(function(response) {
       localStorage.setItem('session', response.data['message']);
     })
+    this.setState({loggedIn: true})
+  
+    // console.log(this.state.session)
     this.setState({modalOpen: false});
     alert('You are now logged in!');
 

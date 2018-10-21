@@ -74,7 +74,7 @@ class Buy extends Component {
       alert("You are unable to use this API without signing in!");
       this.setState({loggedIn: false});
     } else {
-    history.push('/buy-result', this.state)
+      history.push('/buy-result', this.state)
     }
   }
   render() {
