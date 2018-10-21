@@ -38,7 +38,7 @@ class LoginModal extends React.Component {
     //placeholder, trying to see if login button actually submits
     // console.log(this.state.email)
     // console.log(this.state.password)
-    const url = 'http://localhost:5000/test/login';
+    const url = 'http://localhost:5000/api/login';
     const payload = {
       name:this.state.email,
       password:this.state.password
@@ -53,7 +53,7 @@ class LoginModal extends React.Component {
       localStorage.setItem('session', response.data['message']);
     })
     this.setState({loggedIn: true})
-  
+
     // console.log(this.state.session)
     this.setState({modalOpen: false});
     alert('You are now logged in!');

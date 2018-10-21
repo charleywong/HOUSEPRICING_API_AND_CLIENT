@@ -56,7 +56,7 @@ class BuyResult extends React.Component {
   componentWillMount() {
 
 
-    axios.post('http://127.0.0.1:5000/test/search', this.state).then(
+    axios.post('http://127.0.0.1:5000/api/search', this.state).then(
       response => {
         console.log(response.data)
         this.setState({ result: response.data.results });
@@ -67,7 +67,7 @@ class BuyResult extends React.Component {
     ).catch(function(error) {
         console.log('/search: ' + error.message)
     })
-    axios.get('http://127.0.0.1:5000/test/school/' + this.state.suburb + '?ascending=' + this.data.ascending + '&sort_by=' + this.data.sort_by + '&token=' + this.state.token).then(
+    axios.get('http://127.0.0.1:5000/api/school/' + this.state.suburb + '?ascending=' + this.data.ascending + '&sort_by=' + this.data.sort_by + '&token=' + this.state.token).then(
       response => {
         console.log(response.data)
         this.setState({schools:response.data.schools})
@@ -75,7 +75,7 @@ class BuyResult extends React.Component {
         console.log(error)
       })
     const self = this;
-    axios.get('http://127.0.01:5000/test/crimes/' + this.state.suburb + '?group_by=' + this.data.group_by + '&token=' + this.state.token).then(
+    axios.get('http://127.0.01:5000/api/crimes/' + this.state.suburb + '?group_by=' + this.data.group_by + '&token=' + this.state.token).then(
       response => {
         console.log(response.data)
         self.setState({ crimes: response.data.results });

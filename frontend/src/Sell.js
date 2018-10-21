@@ -97,7 +97,7 @@ class Sell extends Component {
       alert("You are unable to use this API without signing in!");
       this.setState({loggedIn: false});
     } else {
-      axios.post('http://localhost:5000/test/predict_price', this.state).then(
+      axios.post('http://localhost:5000/api/predict_price', this.state).then(
         response => {
           this.setState({ predict: response.data });
           console.log(this.state.predict)

@@ -104,7 +104,7 @@ class Renovate extends Component {
       this.setState({loggedIn: false});
     } else {
       // this.setState({token:localStorage.getItem('session')})
-      axios.post('http://localhost:5000/test/predict_price', this.state).then(
+      axios.post('http://localhost:5000/api/predict_price', this.state).then(
         response => {
           this.setState({ predictCurr: response.data });
           console.log(this.state.predictCurr)
@@ -126,13 +126,30 @@ class Renovate extends Component {
             Buildingarea: this.state.RenoBuildingarea,
             RenoBuildingarea: ba
           });
-        }
+        } 
       ).then( () => {
         console.log(this.state)
-        axios.post('http://localhost:5000/test/predict_price', this.state).then(
+        axios.post('http://localhost:5000/api/predict_price', this.state).then(
           response => {
             this.setState({ predictReno: response.data });
             console.log(this.state.predictReno)
+            const bd = this.state.Bedroom;
+            const bt = this.state.Bathroom;
+            const cr = this.state.Car;
+            const ls = this.state.Landsize;
+            const ba = this.state.Buildingarea;
+            this.setState({
+              Bedroom: this.state.RenoBedroom,
+              RenoBedroom: bd,
+              Bathroom: this.state.RenoBathroom,
+              RenoBathroom: bt,
+              Car: this.state.RenoCar,
+              RenoCar: cr,
+              Landsize:  this.state.RenoLandsize,
+              RenoLandsize: ls,
+              Buildingarea: this.state.RenoBuildingarea,
+              RenoBuildingarea: ba
+            });
           }
         ).catch(error => {
           if (error.response.status == 400) {
@@ -165,12 +182,14 @@ class Renovate extends Component {
   }
 
   render () {
+    console.log(this.state.predictReno.price)
+    console.log(this.state.predictCurr.price)
     const RenoPrediction = () => (
       <div>
       <Title3 text='We predict an improved property value of ...' />
       <h1>${
         (parseFloat((this.state.predictReno.price - this.state.predictCurr.price).toFixed(2))).toLocaleString()
-        
+
       } AUD</h1>
       <ModalJSON />
       </div>
