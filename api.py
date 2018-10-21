@@ -18,7 +18,10 @@ MAPBOX_TOKEN = 'pk.eyJ1IjoiZmZmeDAiLCJhIjoiY2psbGtsa21nMHlneDNwcW4wbzg3bDd5eiJ9.
 
 # API AND SWAGGER INIT
 blueprint = Blueprint('api', __name__)
-api = Api(blueprint, title='Our Api')
+api = Api(blueprint, 
+    title='Property Valuation API', 
+    default='api', 
+    description='This service allows you to obtain approximate housing prices in Melbourne based on location and other attributes.' )
 
 usr_details = {
     "_id": "ass2.gontri",
@@ -118,7 +121,7 @@ class register(Resource):
 class login(Resource):
 
     @api.expect(user_model, validate = True)
-    @api.response(200, 'Successfully found, will return a token in form "token-username"')
+    @api.response(200, 'Successfully found, will return a token')
     @api.response(404, 'User not found.')
     @api.response(400, 'Invalid login details (empty fields)')
     @api.response(500, 'Token not found (should not happen)')

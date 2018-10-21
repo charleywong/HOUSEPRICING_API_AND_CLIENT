@@ -5,7 +5,7 @@ from api import blueprint, init
 from flask_cors import CORS
 
 app = Flask(__name__, static_folder='templates/static')
-cors = CORS(app, resources={r"/test/*": {"origins": "*"}})
+cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 
 @app.route('/')
@@ -14,7 +14,7 @@ def index():
     #return send_from_directory('./build','index.html');
 
 #set url prefix to test
-app.register_blueprint(blueprint, url_prefix='/test')
+app.register_blueprint(blueprint, url_prefix='/api')
 
 if __name__ == '__main__':
     init( )
