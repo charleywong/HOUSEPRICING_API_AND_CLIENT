@@ -5,6 +5,8 @@ import pymongo
 from pymongo import MongoClient
 import json
 from bson import json_util
+from werkzeug.security import check_password_hash, generate_password_hash
+import datetime
 
 from housing import HousePrices
 from school import SchoolInfo
@@ -53,6 +55,19 @@ db = client['ass2']
 
 (hp, si, ci) = (None, None, None)
 
+#Token checking function
+def token_check(token):
+    valid_token = False
+    hash_collections = db["tokens"]
+
+    for hash_doc in hash_collections.find():
+        if hash_doc["token"] == token:
+            valid_token = True
+
+    return valid_token
+
+
+
 # API ROUTES HERE?
 @api.route('/register')
 class register(Resource):
@@ -83,10 +98,19 @@ class register(Resource):
         new_data = user_model
 
         new_data["name"] = arg["name"]
-        new_data["password"] = arg["password"]
+        new_data["password"] = generate_password_hash( arg["password"] )
 
 
         collection.insert_one(json.loads(json_util.dumps(new_data)))
+
+        #now create a token for the user
+        token = token_model
+        token["name"] = arg["name"]
+        token["token"] = generate_password_hash( arg["password"]+str(datetime.datetime.utcnow()))
+
+        collection = db["tokens"]
+        collection.insert_one(json.loads(json_util.dumps(token)))
+
 
         return { 'message': 'created' }, 201
 
@@ -97,6 +121,7 @@ class login(Resource):
     @api.response(200, 'Successfully found, will return a token in form "token-username"')
     @api.response(404, 'User not found.')
     @api.response(400, 'Invalid login details (empty fields)')
+    @api.response(500, 'Token not found (should not happen)')
     def post(self):
 
         arg = request.json
@@ -115,16 +140,18 @@ class login(Resource):
 
         for document in collection.find():
             if document["name"] == arg["name"]:
-                if document["password"] == arg["password"]:
-                    #make a token with a date that is valid and send it
+                if check_password_hash( document["password"] , arg["password"] ):
+                    #send the user's token
                     token = token_model
-                    token["name"] = arg["name"]
-                    token["token"] = "token-"+arg["name"]
+                    hash_collections = db["tokens"]
 
-                    collection = db["tokens"]
-                    collection.insert_one(json.loads(json_util.dumps(token)))
-                    return {"message": token["token"] }, 200
+                    for hash_doc in hash_collections.find():
+                        if hash_doc["name"] == arg["name"]:
+                            return {"message": hash_doc["token"] }, 200
 
+                    #if we reach here, a fatal error has occured, shouldnt trigger
+                    return {"message": "Internal Server Error"}, 500
+                    
                 else:
                     return {"message": "wrong password"}, 400
 
@@ -136,6 +163,7 @@ class login(Resource):
 
 house_input = api.model( 'HouseIn', {
     # "Suburb": fields.String,
+    "token": fields.String( required=True ),
     "Type": fields.String( description='h - House, u - Unit, t - Townhouse', required=True ),
     "Address": fields.String( required=True ),
     # "Postcode": fields.Float,
@@ -159,6 +187,7 @@ house_output = api.model( 'HouseOut', {
 class PredictPrice( Resource ):
     @api.response( 200, 'Success', house_output )
     @api.response( 400, 'One of the required fields was not given or specified incorrectly')
+    @api.response( 401, 'Unauthorized - invalid token' )
     @api.response( 404, 'Address location not covered by dataset' )
     @api.response( 503, 'Mapbox API service unavailable (token usage exhausted possibly)' )
     # @api.response( 404, 'Add')
@@ -173,7 +202,8 @@ class PredictPrice( Resource ):
                 }, 400
 
         js = request.json
-        (t, addr, ber, bar, car, yr, mn, dy) = (
+        (token, t, addr, ber, bar, car, yr, mn, dy) = (
+            js['token'],
             js[ 'Type' ],
             js[ 'Address' ],
             js[ 'Bedroom' ],
@@ -183,6 +213,13 @@ class PredictPrice( Resource ):
             js[ 'month' ],
             js[ 'day' ]
         )
+
+        #first check that the token is valid
+        if token_check(token) == False:
+            return {
+                'message': 'Token is invalid - unauthorized access'
+            }, 401
+
 
         if t not in [ 'h', 'u', 't' ]:
             return {
@@ -309,9 +346,23 @@ Optional sort field:
 class Schools( Resource ):
     @api.response(200, 'Success')
     @api.response( 400, 'Invalid field or field value specified' )
+    @api.response( 401, 'Unauthorized access - missing or invalid token' )
+    @api.doc( params={ 'token': 'Token to authorize user access' }, required=True )
     @api.doc( params={ 'sort_by': school_sort_desc }, required=False )
     @api.doc( params={ 'ascending': 'true for ascending, false for descending' }, required=False )
     def get( self ):
+        if 'token' not in request.args:
+            return {
+                'message': 'No token - unauthorized access'
+            }, 401
+
+        token = request.args.get( 'token' )
+
+        if token_check(token) == False:
+            return {
+                'message': 'Token is invalid - unauthorized access'
+            }, 401
+
         ascending = True
         if 'ascending' in request.args:
             asc = request.args.get( 'ascending' )
@@ -354,10 +405,24 @@ class Schools( Resource ):
 class School( Resource ):
     @api.response( 200, 'Success', school_output )
     @api.response( 400, 'Invalid field or field value specified' )
+    @api.response( 401, 'Unauthorized access - wrong or missing token' )
     @api.response( 404, 'Suburb not found' )
+    @api.doc( params={ 'token': 'Token to authorize user access' }, required=True )
     @api.doc( params={ 'sort_by': school_sort_desc }, required=False )
     @api.doc( params={ 'ascending': 'true for ascending, false for descending' }, required=False )
     def get( self, suburb ):
+        if 'token' not in request.args:
+            return {
+                'message': 'No token - unauthorized access'
+            }, 401
+
+        token = request.args.get( 'token' )
+
+        if token_check(token) == False:
+            return {
+                'message': 'Token is invalid - unauthorized access'
+            }, 401
+
         if suburb not in si.get_suburb_list( ):
             return {
                 'message': 'Suburb not found'
@@ -420,6 +485,7 @@ search_output = api.model( 'SearchOutput', {
 } )
 
 search_input = api.model( 'SearchInput', {
+    "token": fields.String( required=True ),
     'min': fields.Integer( description='Minimum price of search', required=True ),
     'max': fields.Integer( description='Maximum price of search', required=True ),
     'suburb': fields.String( description='Suburb of search', required=True )
@@ -428,10 +494,18 @@ search_input = api.model( 'SearchInput', {
 @api.route( '/search' )
 class HouseSearch( Resource ):
     @api.response( 200, 'Success', search_output )
+    @api.response( 401, 'Unauthorized Access - missing or invalid token' )
     @api.expect( search_input, validate=True )
     def post( self ):
         args = request.json
         print( args )
+
+        if token_check( args[ 'token' ]) == False:
+            return {
+                'message': 'Token is invalid - unauthorized access'
+            }, 401
+
+
         return {
             'results': hp.search( args[ 'min' ], args[ 'max' ], args[ 'suburb' ] )
         }, 200
@@ -460,9 +534,22 @@ crime_groupby_desc = """
 class CrimeSuburb( Resource ):
     @api.response( 200, 'Sucess', crime_output )
     @api.response( 400, 'Invalid group_by field specified, expected between 0 and 2' )
+    @api.response( 401, 'Unauthorized access, missing or wrong token' )
     @api.response( 404, 'Suburb not found' )
     @api.doc( params={ 'group_by': crime_groupby_desc }, required=False )
+    @api.doc( params={ 'token': "Token to authenticate user" }, required=True )
     def get( self, suburb ):
+        if 'token' not in request.args:
+            return {
+                'message': 'No token - unauthorized access'
+            }, 401
+
+        token = request.args.get( 'token' )
+        if token_check(token) == False:
+            return {
+                'message': 'Token is invalid - unauthorized access'
+            }, 401
+
         if suburb not in ci.get_suburb_list( ):
             return {
                 'message': 'Suburb not found'
